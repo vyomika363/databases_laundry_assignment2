@@ -1,0 +1,5 @@
+
+
+Install node.js
+Then initialize it using command “npm init -y”
+Then install required functionalities using  “npm install express mysql2 jsonwebtoken cors” 
