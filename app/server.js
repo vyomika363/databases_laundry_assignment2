@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "../index.html"));
 });
 
 // helpers
@@ -124,6 +124,7 @@ app.post("/login", async (req, res) => {
   const { username, password, role, adminCode } = req.body;
 
   if (!username || !password) {
+    safeLog({ username }, "Login attempt missing parameters", "FAILED");
     return res.status(400).json({ error: "Missing parameters" });
   }
 
@@ -134,6 +135,7 @@ app.post("/login", async (req, res) => {
     );
 
     if (users.length === 0) {
+      safeLog({ username }, "Login failed - user not found", "FAILED");
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -142,15 +144,22 @@ app.post("/login", async (req, res) => {
     const requestedRole = normalizeRole(role);
 
     if (password !== account.Password) {
+      safeLog({ username }, "Login failed - wrong password", "FAILED");
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     if (requestedRole && requestedRole !== accountRole) {
+      safeLog(
+        { username, role: requestedRole },
+        `Login failed - role mismatch (expected ${accountRole})`,
+        "FAILED"
+      );
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     if (accountRole === "admin") {
       if (!adminCode || adminCode !== process.env.ADMIN_SECRET) {
+        safeLog({ username }, "Login failed - invalid admin code", "FAILED");
         return res.status(403).json({ error: "Invalid admin code" });
       }
     }
@@ -165,11 +174,7 @@ app.post("/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    safeLog(
-      { username: account.Username, role: accountRole },
-      "Login successful",
-      "SUCCESS"
-    );
+    safeLog({ username: account.Username, role: accountRole }, "Login successful", "SUCCESS");
 
     res.json({
       token,
@@ -177,6 +182,7 @@ app.post("/login", async (req, res) => {
       username: account.Username
     });
   } catch (err) {
+    safeLog({ username }, `Login error: ${err.message}`, "ERROR");
     res.status(500).json({ error: err.message });
   }
 });
@@ -615,64 +621,44 @@ app.put("/customers/:id", verifyToken, allowRoles("admin"), async (req, res) => 
 
 // ADMIN: ADD CUSTOMER
 app.post("/customers", verifyToken, allowRoles("admin"), async (req, res) => {
-  const { memberId, name, email, phoneNumber, address, age, userId } = req.body;
+  const { memberId, name, email, phoneNumber, address, age, username, password } = req.body;
 
   try {
-    const memberKey = toInt(memberId);
-    const userKey = toInt(userId);
-    const ageKey = age !== undefined && age !== "" ? toInt(age) : null;
-
-    if (!memberKey || !name || !userKey) {
-      return res.status(400).json({ error: "MemberID, Name, and UserID are required" });
+    if (!memberId || !name || !username || !password) {
+      return res.status(400).json({ error: "MemberID, Name, Username, and Password are required" });
     }
 
-    const [existingMember] = await db.query(
-      "SELECT MemberID FROM Customer WHERE MemberID = ?",
-      [memberKey]
-    );
-    if (existingMember.length) {
-      return res.status(400).json({ error: "MemberID exists" });
+    // 1️⃣ Create user
+    const [existingUser] = await db.query("SELECT UserID FROM Users WHERE Username = ?", [username]);
+    if (existingUser.length) {
+      return res.status(400).json({ error: "Username already exists" });
     }
 
-    const [userRows] = await db.query(
-      "SELECT UserID FROM Users WHERE UserID = ?",
-      [userKey]
+    const [userResult] = await db.query(
+      "INSERT INTO Users (Username, Password, Role) VALUES (?, ?, 'customer')",
+      [username, password]
     );
-    if (!userRows.length) {
-      return res.status(400).json({ error: "UserID invalid" });
-    }
+    const newUserId = userResult.insertId;
 
-    const [userUsedInCustomer] = await db.query(
-      "SELECT MemberID FROM Customer WHERE UserID = ?",
-      [userKey]
-    );
-    const [userUsedInStaff] = await db.query(
-      "SELECT StaffID FROM Staff WHERE UserID = ?",
-      [userKey]
-    );
+    // 2️⃣ Insert customer
+    const [existingMember] = await db.query("SELECT MemberID FROM Customer WHERE MemberID = ?", [memberId]);
+    if (existingMember.length) return res.status(400).json({ error: "MemberID exists" });
 
-    if (userUsedInCustomer.length || userUsedInStaff.length) {
-      return res.status(400).json({ error: "UserID already linked to another member" });
-    }
-
+    const ageKey = age ? parseInt(age, 10) : null;
     await db.query(
-      `
-      INSERT INTO Customer 
-      (MemberID, Name, Email, PhoneNumber, Address, Age, RegistrationDate, UserID)
-      VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)
-      `,
-      [memberKey, name, email || null, phoneNumber || null, address || null, ageKey, userKey]
+      `INSERT INTO Customer (MemberID, Name, Email, PhoneNumber, Address, Age, RegistrationDate, UserID)
+       VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)`,
+      [parseInt(memberId, 10), name, email || null, phoneNumber || null, address || null, ageKey, newUserId]
     );
 
-    safeLog(req.user, `Created customer ${memberKey}`, "SUCCESS");
+    safeLog(req.user, `Created customer ${memberId}`, "SUCCESS");
 
-    res.json({ message: "Customer added" });
+    res.json({ message: "Customer and user added successfully", userId: newUserId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Database error" });
   }
 });
-
 // ADMIN: SAFE DELETE CUSTOMER
 app.delete("/customers/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   const memberId = req.params.id;

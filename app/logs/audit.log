@@ -1,7 +1,24 @@
-[2026-03-21T20:26:30.007Z] user=aarav1 role=customer action=Login successful status=SUCCESS
-[2026-03-21T20:26:33.357Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
-[2026-03-21T20:28:07.187Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
-[2026-03-21T20:29:05.133Z] user=admin role=admin action=Login successful status=SUCCESS
-[2026-03-21T21:27:15.975Z] user=aarav1 role=customer action=Login successful status=SUCCESS
-[2026-03-21T21:30:18.715Z] user=rajeshkumar role=staff action=Login successful status=SUCCESS
-[2026-03-21T21:32:14.702Z] user=admin role=admin action=Login successful status=SUCCESS
+[2026-03-22T04:16:59.218Z] user=admin role=admin action=Login successful status=SUCCESS
+[2026-03-22T04:39:23.786Z] user=aarav1 role=admin action=Login failed - role mismatch (expected customer) status=FAILED
+[2026-03-22T04:39:26.928Z] user=aarav1 role=customer action=Login successful status=SUCCESS
+[2026-03-22T04:39:57.860Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:39:58.519Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:39:58.683Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:39:58.911Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:39:59.740Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:40:00.219Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:40:00.429Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:43:27.114Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:43:37.488Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:44:43.183Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:44:44.385Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:45:45.199Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:46:18.820Z] user=aarav1 role=customer action=Login successful status=SUCCESS
+[2026-03-22T04:46:24.709Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:46:26.463Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:46:40.864Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:48:31.127Z] user=aarav1 role=customer action=Login successful status=SUCCESS
+[2026-03-22T04:48:38.047Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T04:49:01.033Z] user=aarav1 role=unknown action=Login failed - wrong password status=FAILED
+[2026-03-22T04:49:15.254Z] user=admin role=unknown action=Login failed - invalid admin code status=FAILED
+[2026-03-22T04:50:14.379Z] user=admin role=admin action=Login successful status=SUCCESS

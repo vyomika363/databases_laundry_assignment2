@@ -3,253 +3,659 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Laundry Dashboard</title>
-
+<title>LaundryMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
-  .hidden { display: none; }
-  .card { background: white; padding: 16px; border-radius: 8px; margin-top: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th, td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
-  th { background: #eee; }
-  button { padding: 8px 12px; margin: 4px; cursor: pointer; }
-  input, select, textarea { padding: 8px; margin: 4px 0; width: 100%; box-sizing: border-box; }
-  .danger { background: red; color: white; }
-  .primary { background: blue; color: white; }
-  .secondary { background: #666; color: white; }
-  .note { background: #fff8dc; padding: 10px; border-left: 4px solid #d4b106; margin-top: 8px; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 900px) {
-    .grid2 { grid-template-columns: 1fr; }
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0f0f13;
+  --panel:       #16161d;
+  --surface:     #f4f4f6;
+  --card:        #ffffff;
+  --border-dark: rgba(255,255,255,0.07);
+  --border:      rgba(0,0,0,0.07);
+  --accent:      #6ee7c7;
+  --accent2:     #3b9eff;
+  --accent-dark: #0a1a15;
+  --text:        #1a1a2e;
+  --muted:       #7a7a90;
+  --sidebar-text:   #9999b0;
+  --sidebar-hover:  rgba(255,255,255,0.06);
+  --sidebar-border: rgba(255,255,255,0.06);
+  --red:    #ff6b6b;
+  --yellow: #ffc542;
+  --green:  #6ee7c7;
+  --blue:   #3b9eff;
+}
+
+html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text); }
+.hidden { display: none !important; }
+
+/* ══════════════════════
+   LOGIN
+══════════════════════ */
+#loginDiv {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+}
+#loginDiv::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(110,231,199,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(59,158,255,0.08) 0%, transparent 60%);
+}
+#loginDiv::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+}
+.login-inner {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr 440px;
+  width: 100%; height: 100vh;
+}
+.login-brand {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 60px 64px; gap: 28px;
+}
+.login-brand .logo-row { display: flex; align-items: center; gap: 12px; }
+.login-brand .logo-mark {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 12px; box-shadow: 0 0 28px rgba(110,231,199,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.login-brand .logo-mark svg { width: 20px; height: 20px; }
+.login-brand .logo-text { font-family: 'DM Serif Display', serif; font-size: 20px; color: #fff; }
+.login-brand .logo-text span { color: var(--accent); }
+.brand-headline { font-family: 'DM Serif Display', serif; font-size: clamp(34px,3.2vw,50px); line-height: 1.15; letter-spacing: -0.5px; color: #fff; }
+.brand-headline em { font-style: italic; color: var(--accent); }
+.brand-quip { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 18px; color: rgba(255,255,255,0.6); }
+.brand-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.brand-pill { padding: 4px 12px; border-radius: 100px; border: 1px solid var(--border-dark); background: rgba(255,255,255,0.03); font-size: 11.5px; color: var(--sidebar-text); letter-spacing: 0.3px; }
+.brand-pill.hi { border-color: rgba(110,231,199,0.25); color: var(--accent); background: rgba(110,231,199,0.05); }
+
+.login-form-panel {
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 48px;
+  border-left: 1px solid var(--border-dark); background: var(--panel);
+  animation: slideIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+.login-form-inner { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 22px; }
+.login-form-inner h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #fff; font-weight: 400; }
+.login-form-inner .form-sub { font-size: 13px; color: var(--sidebar-text); margin-top: 2px; }
+
+.role-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-dark); border-radius: 12px; padding: 5px; }
+.role-btn { padding: 8px; border-radius: 8px; border: none; background: transparent; color: var(--sidebar-text); font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.18s; }
+.role-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.role-btn.role-selected { background: linear-gradient(135deg, rgba(110,231,199,0.14), rgba(59,158,255,0.09)); color: var(--accent); border: 1px solid rgba(110,231,199,0.2); }
+
+.lfield { display: flex; flex-direction: column; gap: 6px; }
+.lfield label { font-size: 11px; font-weight: 600; color: var(--sidebar-text); letter-spacing: 0.5px; text-transform: uppercase; }
+.lfield input { width: 100%; padding: 11px 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-dark); border-radius: 9px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 13.5px; outline: none; transition: border-color 0.18s, box-shadow 0.18s; }
+.lfield input::placeholder { color: var(--sidebar-text); opacity: 0.6; }
+.lfield input:focus { border-color: rgba(110,231,199,0.4); box-shadow: 0 0 0 3px rgba(110,231,199,0.07); }
+
+#adminBox { background: rgba(255,197,66,0.06); border: 1px solid rgba(255,197,66,0.2); border-radius: 9px; padding: 12px; }
+#adminBox input { width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-dark); border-radius: 8px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; }
+#adminBox input::placeholder { color: var(--sidebar-text); }
+
+#error { font-size: 12.5px; color: var(--red); background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.18); border-radius: 8px; padding: 9px 12px; display: none; }
+#error:not(:empty) { display: block; }
+
+.btn-login { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent), #4dd9a8); border: none; border-radius: 9px; color: var(--accent-dark); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.18s, transform 0.14s, box-shadow 0.18s; box-shadow: 0 4px 18px rgba(110,231,199,0.22); }
+.btn-login:hover { opacity: 0.9; }
+.btn-login:active { transform: scale(0.985); }
+
+
+
+/* ══════════════════════
+   DASHBOARD SHELL
+══════════════════════ */
+#dashboardDiv { display: grid; grid-template-columns: 220px 1fr; height: 100vh; overflow: hidden; }
+#dashboardDiv.hidden { display: none !important; }
+
+/* Sidebar */
+.sidebar { background: var(--bg); display: flex; flex-direction: column; border-right: 1px solid var(--sidebar-border); overflow-y: auto; overflow-x: hidden; }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 22px 18px 18px; border-bottom: 1px solid var(--sidebar-border); flex-shrink: 0; }
+.sidebar-logo .logo-mark { width: 30px; height: 30px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar-logo .logo-mark svg { width: 14px; height: 14px; }
+.sidebar-logo .logo-text { font-family: 'DM Serif Display', serif; font-size: 15px; color: #fff; }
+.sidebar-logo .logo-text span { color: var(--accent); }
+
+.sidebar-section { padding: 16px 10px 6px; }
+.sidebar-label { font-size: 9px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0 8px; margin-bottom: 3px; }
+
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; color: var(--sidebar-text); font-size: 12.5px; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.18s; margin-bottom: 1px; border: none; background: none; width: 100%; text-align: left; }
+.nav-item svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: rgba(110,231,199,0.12); color: var(--accent); }
+.nav-item.active svg { stroke: var(--accent); }
+
+.sidebar-footer { margin-top: auto; padding: 14px 10px; border-top: 1px solid var(--sidebar-border); flex-shrink: 0; }
+.user-chip { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.04); }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent-dark); flex-shrink: 0; }
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 12px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role-label { font-size: 10px; color: var(--sidebar-text); }
+.logout-btn { background: none; border: none; cursor: pointer; color: var(--sidebar-text); padding: 3px; display: flex; transition: color 0.18s; }
+.logout-btn:hover { color: var(--red); }
+.logout-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+/* Main */
+.main-area { display: flex; flex-direction: column; overflow: hidden; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 26px; background: var(--card); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.topbar-left { display: flex; flex-direction: column; gap: 1px; }
+.topbar-title { font-family: 'DM Serif Display', serif; font-size: 19px; }
+.topbar-sub   { font-size: 11.5px; color: var(--muted); }
+.logout-top { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: none; font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--muted); cursor: pointer; transition: all 0.18s; }
+.logout-top:hover { border-color: var(--red); color: var(--red); }
+.logout-top svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+.content-area { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+
+/* View switching — each admin view */
+.admin-view { display: none; flex-direction: column; gap: 20px; animation: fadeUp 0.3s ease both; }
+.admin-view.active { display: flex; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* Profile card */
+#profile { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; font-size: 13.5px; line-height: 2; color: var(--muted); }
+#profile strong { color: var(--text); font-weight: 600; margin-right: 6px; }
+
+/* Section cards */
+.section-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.section-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.section-title { font-size: 13.5px; font-weight: 600; }
+.section-body  { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Note */
+.note { background: rgba(255,197,66,0.07); border-left: 3px solid #e6a800; border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: #7a6000; line-height: 1.5; }
+
+/* Buttons */
+.btn { padding: 9px 16px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+.btn-primary { background: linear-gradient(135deg, var(--accent), #4dd9a8); color: var(--accent-dark); box-shadow: 0 3px 12px rgba(110,231,199,0.2); }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+.btn-secondary:hover { color: var(--text); border-color: #bbb; }
+.btn-danger { background: rgba(255,107,107,0.1); color: var(--red); border: 1px solid rgba(255,107,107,0.2); }
+.btn-danger:hover { background: rgba(255,107,107,0.18); }
+.btn-sm { padding: 5px 10px; font-size: 11.5px; }
+
+/* Search */
+.search-row { display: flex; gap: 10px; align-items: center; }
+.search-wrap { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
+.search-wrap svg { width: 13px; height: 13px; stroke: var(--muted); fill: none; stroke-width: 1.8; flex-shrink: 0; }
+.search-wrap input { border: none; background: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); width: 100%; }
+.search-wrap input::placeholder { color: var(--muted); }
+.filter-select { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text); outline: none; cursor: pointer; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); padding: 9px 14px; text-align: left; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border); }
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: rgba(0,0,0,0.02); }
+tbody td { padding: 11px 14px; font-size: 12.5px; border-bottom: 1px solid rgba(0,0,0,0.04); color: var(--text); }
+tbody tr:last-child td { border-bottom: none; }
+.td-muted { color: var(--muted); }
+.empty-row td { text-align: center; color: var(--muted); padding: 32px !important; }
+
+.status-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.status-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.pill-pending    { background: rgba(255,197,66,0.12);  color: #c98c00; }
+.pill-completed  { background: rgba(110,231,199,0.12); color: #2aaa88; }
+.pill-processing { background: rgba(59,158,255,0.12);  color: #2a7fd4; }
+.pill-delivered  { background: rgba(110,231,199,0.12); color: #2aaa88; }
+
+/* Logs */
+#logBox { width: 100%; padding: 14px; background: var(--bg); color: #a0e0cc; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid var(--border-dark); border-radius: 8px; outline: none; resize: vertical; line-height: 1.6; }
+
+/* ══════════════════════
+   MODAL
+══════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--card); border-radius: 16px;
+  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+  animation: modalIn 0.25s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes modalIn { from { opacity:0; transform:translateY(16px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 18px; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--muted); padding: 4px; border-radius: 6px; transition: color 0.18s; display: flex; }
+.modal-close:hover { color: var(--text); }
+.modal-close svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 22px; border-top: 1px solid var(--border); }
+
+/* Form fields inside modal */
+.sfield { display: flex; flex-direction: column; gap: 5px; }
+.sfield label { font-size: 10.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+.sfield input, .sfield select { width: 100%; padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.18s, box-shadow 0.18s; }
+.sfield input::placeholder { color: var(--muted); opacity: 0.7; }
+.sfield input:focus, .sfield select:focus { border-color: rgba(110,231,199,0.5); box-shadow: 0 0 0 3px rgba(110,231,199,0.08); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+input[type="hidden"] { display: none !important; }
+
+/* Customer profile card */
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
+.profile-field { display: flex; flex-direction: column; gap: 2px; }
+.profile-field .pf-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+.profile-field .pf-value { font-size: 13.5px; color: var(--text); font-weight: 500; }
+
+/* Staff task badge */
+.task-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.task-pickup   { background: rgba(59,158,255,0.12);  color: #2a7fd4; }
+.task-delivery { background: rgba(110,231,199,0.12); color: #2aaa88; }
 </style>
 </head>
-
 <body>
 
-<h1>Laundry Management</h1>
-
-<!-- LOGIN -->
-<div id="loginDiv" class="card">
-  <h2>Login</h2>
-  <form id="loginForm">
-    <input id="username" placeholder="Username" required />
-    <input id="password" type="password" placeholder="Password" required />
-
-    <select id="role">
-      <option value="customer">Customer</option>
-      <option value="staff">Staff</option>
-      <option value="admin">Admin</option>
-    </select>
-
-    <div id="adminBox" class="hidden">
-      <input id="adminCode" placeholder="Admin Code" />
+<!-- ══════════════════════
+     LOGIN
+══════════════════════ -->
+<div id="loginDiv">
+  <div class="login-inner">
+    <div class="login-brand">
+      <div class="logo-row">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0a1a15" stroke-width="2"/><path d="M8 12a4 4 0 0 1 8 0" stroke="#0a1a15" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="#0a1a15"/></svg>
+        </div>
+        <div class="logo-text">Laundry<span>MS</span></div>
+      </div>
+      <h1 class="brand-headline">Fresh clothes,<br><em>zero</em> effort.</h1>
+      <p class="brand-quip">Because nobody actually likes doing laundry.</p>
     </div>
 
-    <button type="submit" class="primary">Login</button>
-  </form>
-
-  <div id="error" style="color:red;"></div>
+    <div class="login-form-panel">
+      <div class="login-form-inner">
+        <div>
+          <h2>Sign in</h2>
+          <p class="form-sub">Enter your credentials to access the system</p>
+        </div>
+        <div class="role-selector">
+          <button type="button" class="role-btn" data-val="customer" onclick="setRole('customer')">Customer</button>
+          <button type="button" class="role-btn" data-val="staff"    onclick="setRole('staff')">Staff</button>
+          <button type="button" class="role-btn role-selected" data-val="admin" onclick="setRole('admin')">Admin</button>
+        </div>
+        <form id="loginForm" style="display:flex;flex-direction:column;gap:14px;">
+          <select id="role" style="display:none;">
+            <option value="customer">Customer</option>
+            <option value="staff">Staff</option>
+            <option value="admin" selected>Admin</option>
+          </select>
+          <div class="lfield">
+            <label>Username</label>
+            <input id="username" placeholder="Your username" required autocomplete="username"/>
+          </div>
+          <div class="lfield">
+            <label>Password</label>
+            <input id="password" type="password" placeholder="Your password" required autocomplete="current-password"/>
+          </div>
+          <div id="adminBox" class="hidden">
+            <input id="adminCode" placeholder="Admin code" />
+          </div>
+          <div id="error"></div>
+          <button type="submit" class="btn-login">Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ══════════════════════
+     DASHBOARD
+══════════════════════ -->
 <div id="dashboardDiv" class="hidden">
-  <button onclick="logout()" class="secondary">Logout</button>
-  <h2 id="roleTitle"></h2>
 
-  <div id="profile" class="card"></div>
-
-  <!-- CUSTOMER -->
-  <div id="customerSection" class="hidden card">
-    <h3>Customer Portal</h3>
-
-    <div class="note">
-      This profile form updates only the Customer table, not the Users table.
-    </div>
-
-    <h4>Update Profile</h4>
-    <form id="profileForm">
-      <input id="profileName" placeholder="Name" />
-      <input id="profileEmail" placeholder="Email" />
-      <input id="profilePhone" placeholder="Phone Number" />
-      <input id="profileAddress" placeholder="Address" />
-      <input id="profileAge" placeholder="Age" />
-      <button type="submit" class="primary">Save Profile</button>
-    </form>
-
-    <h4>Your Orders</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Status</th>
-          <th>Qty</th>
-          <th>Delivery</th>
-          <th>Pickup</th>
-          <th>Delivery Date</th>
-        </tr>
-      </thead>
-      <tbody id="customerTable"></tbody>
-    </table>
-  </div>
-
-  <!-- STAFF -->
-  <div id="staffSection" class="hidden card">
-    <h3>Staff Portal</h3>
-
-    <h4>Your Pickups</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer</th>
-          <th>Date</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody id="pickupTable"></tbody>
-    </table>
-
-    <h4>Your Deliveries</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer</th>
-          <th>Date</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody id="deliveryTable"></tbody>
-    </table>
-  </div>
-
-  <!-- ADMIN -->
-  <div id="adminSection" class="hidden card">
-    <h3>🛠 Admin Control Panel</h3>
-
-    <div class="note">
-      Delete actions are protected. Customer deletion is blocked if that customer still has orders.
-      Staff deletion is blocked if they still have pickup/delivery assignments.
-    </div>
-
-    <div class="grid2">
-      <!-- ORDER -->
-      <div class="card">
-        <h4>Create / Update Order</h4>
-        <form id="orderForm">
-          <input type="hidden" id="orderId" />
-          <input id="memberId" placeholder="Member ID" />
-          <input id="quantity" placeholder="Quantity" />
-          <input id="orderStatus" placeholder="Order Status" />
-          <input id="deliveryStatus" placeholder="Delivery Status" />
-
-          <button id="orderSaveBtn" type="submit" class="primary">Save Order</button>
-          <button type="button" onclick="resetOrderForm()" class="secondary">Reset</button>
-        </form>
-
-        <h4>Search & Filter Orders</h4>
-        <input id="orderSearch" placeholder="Search by Order ID / Customer" />
-        <select id="orderFilter">
-          <option value="">All Status</option>
-          <option>Processing</option>
-          <option>Completed</option>
-          <option>Pending</option>
-          <option>Delivered</option>
-        </select>
-
-        <h4>All Orders</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Customer</th>
-              <th>Status</th>
-              <th>Qty</th>
-              <th>Delivery</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="orderTable"></tbody>
-        </table>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0a1a15" stroke-width="2"/><path d="M8 12a4 4 0 0 1 8 0" stroke="#0a1a15" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="#0a1a15"/></svg>
       </div>
+      <div class="logo-text">Laundry<span>MS</span></div>
+    </div>
 
-      <!-- CUSTOMER -->
-      <div class="card">
-        <h4>Create / Update Customer</h4>
-        <form id="customerForm">
-          <input type="hidden" id="customerEditingId" />
-          <input id="c_memberId" placeholder="Member ID" required />
-          <input id="c_name" placeholder="Name" required />
-          <input id="c_email" placeholder="Email" />
-          <input id="c_phone" placeholder="Phone Number" />
-          <input id="c_address" placeholder="Address" />
-          <input id="c_age" placeholder="Age" />
-          <input id="c_userId" placeholder="User ID" required />
-          <button id="customerSaveBtn" type="submit" class="primary">Add Customer</button>
-          <button type="button" onclick="resetCustomerForm()" class="secondary">Reset</button>
-        </form>
+    <!-- Customer nav -->
+    <div class="sidebar-section" id="navCustomer" style="display:none;">
+      <div class="sidebar-label">My Account</div>
+      <button class="nav-item active" onclick="switchView('cust-profile')">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </button>
+      <button class="nav-item" onclick="switchView('cust-orders')">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
+        My Orders
+      </button>
+    </div>
 
-        <h4>Search Customers</h4>
-        <input id="customerSearch" placeholder="Search by ID / Name / Username" />
+    <!-- Staff nav -->
+    <div class="sidebar-section" id="navStaff" style="display:none;">
+      <div class="sidebar-label">My Tasks</div>
+      <button class="nav-item active" onclick="switchView('staff-tasks')">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Assigned Tasks
+      </button>
+    </div>
 
-        <h4>All Customers</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>Member ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Address</th>
-              <th>Age</th>
-              <th>User ID</th>
-              <th>Username</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="customerTableAdmin"></tbody>
-        </table>
+    <!-- Admin nav -->
+    <div class="sidebar-section" id="navAdmin" style="display:none;">
+      <div class="sidebar-label">Manage</div>
+      <button class="nav-item active" id="nav-orders" onclick="switchView('admin-orders')">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
+        Orders
+      </button>
+      <button class="nav-item" id="nav-customers" onclick="switchView('admin-customers')">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Customers
+      </button>
+      <button class="nav-item" id="nav-staff" onclick="switchView('admin-staff')">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Staff
+      </button>
+      <div class="sidebar-label" style="margin-top:12px;">System</div>
+      <button class="nav-item" id="nav-logs" onclick="switchView('admin-logs')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Audit Logs
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="sidebarAvatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarName">—</div>
+          <div class="user-role-label" id="sidebarRole">—</div>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Logout">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
       </div>
     </div>
+  </aside>
 
-    <div class="card" style="margin-top:16px;">
-      <h4>Create / Update Staff</h4>
-      <form id="staffForm">
-        <input type="hidden" id="staffEditingId" />
-        <input id="s_staffId" placeholder="Staff ID" required />
-        <input id="s_name" placeholder="Name" required />
-        <input id="s_role" placeholder="Role" />
-        <input id="s_contact" placeholder="Contact Number" />
-        <input id="s_userId" placeholder="User ID" required />
-        <button id="staffSaveBtn" type="submit" class="primary">Add Staff</button>
-        <button type="button" onclick="resetStaffForm()" class="secondary">Reset</button>
-      </form>
-
-      <h4>Search Staff</h4>
-      <input id="staffSearch" placeholder="Search by ID / Name / Username" />
-
-      <h4>All Staff</h4>
-      <table>
-        <thead>
-          <tr>
-            <th>Staff ID</th>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Contact</th>
-            <th>User ID</th>
-            <th>Username</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="staffTableAdmin"></tbody>
-      </table>
+  <!-- Main -->
+  <div class="main-area">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="roleTitle">Dashboard</div>
+        <div class="topbar-sub"   id="topbarSub">Loading…</div>
+      </div>
+      <button onclick="logout()" class="logout-top">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </button>
     </div>
 
-    <div class="card" style="margin-top:16px;">
-      <h4>Local Audit Log</h4>
-      <button type="button" onclick="loadLogs()" class="secondary">Refresh Logs</button>
-      <textarea id="logBox" rows="10" readonly style="width:100%;"></textarea>
+    <div class="content-area">
+      <div id="profile"></div>
+
+      <!-- ── CUSTOMER: Profile view ── -->
+      <div id="view-cust-profile" class="admin-view active">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">My Profile</div>
+            <button class="btn btn-secondary btn-sm" onclick="toggleProfileEdit()">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <span id="editBtnLabel">Edit Profile</span>
+            </button>
+          </div>
+          <div class="section-body">
+            <div id="profileDisplay" class="profile-grid"></div>
+            <form id="profileForm" style="display:none;" class="styled-form">
+              <div class="note">This form updates only the Customer table, not the Users table.</div>
+              <div class="form-row">
+                <div class="sfield"><label>Name</label><input id="profileName" placeholder="Full name"/></div>
+                <div class="sfield"><label>Email</label><input id="profileEmail" placeholder="Email"/></div>
+              </div>
+              <div class="form-row">
+                <div class="sfield"><label>Phone</label><input id="profilePhone" placeholder="Phone"/></div>
+                <div class="sfield"><label>Age</label><input id="profileAge" placeholder="Age"/></div>
+              </div>
+              <div class="sfield"><label>Address</label><input id="profileAddress" placeholder="Address"/></div>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="toggleProfileEdit()">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CUSTOMER: Orders view ── -->
+      <div id="view-cust-orders" class="admin-view">
+        <div class="section-card">
+          <div class="section-header"><div class="section-title">My Orders</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Order ID</th><th>Status</th><th>Qty</th><th>Delivery Status</th><th>Pickup</th><th>Delivery Date</th></tr></thead>
+              <tbody id="customerTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STAFF: Tasks view ── -->
+      <div id="view-staff-tasks" class="admin-view">
+        <div class="section-card">
+          <div class="section-header"><div class="section-title">Assigned Tasks</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Order ID</th><th>Task</th><th>Customer</th><th>Date</th><th>Time</th></tr></thead>
+              <tbody id="staffTasksTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADMIN: Orders view ── -->
+      <div id="view-admin-orders" class="admin-view active">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Orders</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('order')">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Order
+            </button>
+          </div>
+          <div class="section-body">
+            <div class="search-row">
+              <div class="search-wrap">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input id="orderSearch" placeholder="Search by Order ID or customer name…" />
+              </div>
+              <select id="orderFilter" class="filter-select">
+                <option value="">All Status</option>
+                <option>Processing</option>
+                <option>Completed</option>
+                <option>Pending</option>
+                <option>Delivered</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Customer</th><th>Status</th><th>Qty</th><th>Delivery</th><th>Actions</th></tr></thead>
+                <tbody id="orderTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADMIN: Customers view ── -->
+      <div id="view-admin-customers" class="admin-view">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Customers</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('customer')">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Customer
+            </button>
+          </div>
+          <div class="section-body">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input id="customerSearch" placeholder="Search by ID, name or username…" />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Age</th><th>UID</th><th>Username</th><th>Actions</th></tr></thead>
+                <tbody id="customerTableAdmin"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADMIN: Staff view ── -->
+      <div id="view-admin-staff" class="admin-view">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Staff</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('staff')">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Staff
+            </button>
+          </div>
+          <div class="section-body">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input id="staffSearch" placeholder="Search by ID, name or username…" />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Staff ID</th><th>Name</th><th>Role</th><th>Contact</th><th>User ID</th><th>Username</th><th>Actions</th></tr></thead>
+                <tbody id="staffTableAdmin"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADMIN: Logs view ── -->
+      <div id="view-admin-logs" class="admin-view">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Audit Logs</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadLogs()">Refresh</button>
+          </div>
+          <div class="section-body">
+            <textarea id="logBox" rows="20" readonly placeholder="No logs yet…"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+     MODALS
+══════════════════════ -->
+
+<!-- Order modal -->
+<div class="modal-overlay" id="modalOrder">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="orderModalTitle">Add Order</div>
+      <button class="modal-close" onclick="closeModal('order')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="orderId" />
+      <div class="form-row">
+        <div class="sfield"><label>Member ID</label><input id="memberId" placeholder="Member ID"/></div>
+        <div class="sfield"><label>Quantity</label><input id="quantity" placeholder="Quantity"/></div>
+      </div>
+      <div class="form-row">
+        <div class="sfield"><label>Order Status</label>
+          <select id="orderStatus">
+            <option value="">Select status</option>
+            <option>Pending</option><option>Processing</option><option>Completed</option><option>Delivered</option>
+          </select>
+        </div>
+        <div class="sfield"><label>Delivery Status</label>
+          <select id="deliveryStatus">
+            <option value="">Select status</option>
+            <option>Pending</option><option>Dispatched</option><option>Delivered</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('order')">Cancel</button>
+      <button class="btn btn-primary" id="orderSaveBtn" onclick="submitOrderForm()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer modal -->
+<div class="modal-overlay" id="modalCustomer">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="customerModalTitle">Add Customer</div>
+      <button class="modal-close" onclick="closeModal('customer')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="customerEditingId" />
+      <div class="form-row">
+        <div class="sfield"><label>Member ID</label><input id="c_memberId" placeholder="Member ID" required/></div>
+        <div class="sfield"><label>Name</label><input id="c_name" placeholder="Full name" required/></div>
+      </div>
+      <div class="form-row">
+        <div class="sfield"><label>Email</label><input id="c_email" placeholder="Email"/></div>
+        <div class="sfield"><label>Phone</label><input id="c_phone" placeholder="Phone number"/></div>
+      </div>
+      <div class="form-row">
+        <div class="sfield"><label>Age</label><input id="c_age" placeholder="Age"/></div>
+        <div class="sfield"><label>User ID</label><input id="c_userId" type="number" placeholder="UserID (numeric)" /></div>
+      </div>
+      <div class="sfield"><label>Address</label><input id="c_address" placeholder="Address"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('customer')">Cancel</button>
+      <button class="btn btn-primary" id="customerSaveBtn" onclick="submitCustomerForm()">Add Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Staff modal -->
+<div class="modal-overlay" id="modalStaff">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="staffModalTitle">Add Staff</div>
+      <button class="modal-close" onclick="closeModal('staff')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="staffEditingId" />
+      <div class="form-row">
+        <div class="sfield"><label>Staff ID</label><input id="s_staffId" placeholder="Staff ID" required/></div>
+        <div class="sfield"><label>Name</label><input id="s_name" placeholder="Full name" required/></div>
+      </div>
+      <div class="form-row">
+        <div class="sfield"><label>Role</label><input id="s_role" placeholder="e.g. Pickup Staff"/></div>
+        <div class="sfield"><label>Contact</label><input id="s_contact" placeholder="Contact number"/></div>
+      </div>
+      <div class="sfield"><label>User ID</label><input id="s_userId" placeholder="User ID" required/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('staff')">Cancel</button>
+      <button class="btn btn-primary" id="staffSaveBtn" onclick="submitStaffForm()">Add Staff</button>
     </div>
   </div>
 </div>
@@ -261,29 +667,85 @@ const $ = (id) => document.getElementById(id);
 let ALL_ORDERS = [];
 let ALL_CUSTOMERS = [];
 let ALL_STAFF = [];
+let CURRENT_ROLE = "";
 
-// toggle admin box
-$("role").addEventListener("change", () => {
-  $("adminBox").classList.toggle("hidden", $("role").value !== "admin");
+/* ── Role button sync ── */
+function setRole(val) {
+  $("role").value = val;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('role-selected', b.dataset.val === val));
+  $("adminBox").classList.toggle("hidden", val !== "admin");
+}
+setRole("admin");
+$("role").addEventListener("change", () => setRole($("role").value));
+
+/* ── View switching ── */
+function switchView(view) {
+  // hide all views
+  document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
+  // show target
+  const target = document.getElementById('view-' + view);
+  if (target) target.classList.add('active');
+  // update nav active state
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navMap = {
+    'admin-orders': 'nav-orders', 'admin-customers': 'nav-customers',
+    'admin-staff': 'nav-staff', 'admin-logs': 'nav-logs'
+  };
+  if (navMap[view]) {
+    const navEl = document.getElementById(navMap[view]);
+    if (navEl) navEl.classList.add('active');
+  }
+  // update topbar title
+  const titles = {
+    'admin-orders': 'Orders', 'admin-customers': 'Customers',
+    'admin-staff': 'Staff', 'admin-logs': 'Audit Logs',
+    'cust-profile': 'My Profile', 'cust-orders': 'My Orders',
+    'staff-tasks': 'Assigned Tasks'
+  };
+  if (titles[view]) $("roleTitle").innerText = titles[view];
+
+  // load logs when switching to logs view
+  if (view === 'admin-logs') loadLogs();
+}
+
+/* ── Sidebar for role ── */
+function showSidebarForRole(role) {
+  $("navCustomer").style.display = role === "customer" ? "block" : "none";
+  $("navStaff").style.display    = role === "staff"    ? "block" : "none";
+  $("navAdmin").style.display    = role === "admin"    ? "block" : "none";
+  $("sidebarRole").textContent   = role.charAt(0).toUpperCase() + role.slice(1);
+}
+
+/* ── Modal helpers ── */
+function openModal(type) {
+  $("modal" + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('open');
+}
+function closeModal(type) {
+  $("modal" + type.charAt(0).toUpperCase() + type.slice(1)).classList.remove('open');
+}
+// close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
 });
 
-// api helper
+/* ── Profile edit toggle ── */
+let profileEditOpen = false;
+function toggleProfileEdit() {
+  profileEditOpen = !profileEditOpen;
+  $("profileForm").style.display   = profileEditOpen ? "flex" : "none";
+  $("profileForm").style.flexDirection = "column";
+  $("profileForm").style.gap = "12px";
+  $("profileDisplay").style.display = profileEditOpen ? "none" : "grid";
+  $("editBtnLabel").textContent = profileEditOpen ? "Cancel" : "Edit Profile";
+}
+
+/* ── api helper (unchanged) ── */
 async function api(url, options = {}) {
   const token = localStorage.getItem("token");
-
-  const headers = {
-    "Content-Type": "application/json",
-    ...(options.headers || {})
-  };
-
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
   if (token) headers.Authorization = "Bearer " + token;
-
   try {
-    const res = await fetch(BASE_URL + url, {
-      ...options,
-      headers
-    });
-
+    const res = await fetch(BASE_URL + url, { ...options, headers });
     const data = await res.json().catch(() => ({}));
     return { res, data };
   } catch {
@@ -292,468 +754,345 @@ async function api(url, options = {}) {
   }
 }
 
-// login
+/* ── login (unchanged) ── */
 $("loginForm").onsubmit = async (e) => {
   e.preventDefault();
-
   const { res, data } = await api("/login", {
     method: "POST",
-    body: JSON.stringify({
-      username: $("username").value,
-      password: $("password").value,
-      role: $("role").value,
-      adminCode: $("adminCode").value
-    })
+    body: JSON.stringify({ username: $("username").value, password: $("password").value, role: $("role").value, adminCode: $("adminCode").value })
   });
-
-  if (!res.ok) {
-    $("error").innerText = data.error || "Login failed";
-    return;
-  }
-
+  if (!res.ok) { $("error").innerText = data.error || "Login failed"; return; }
   localStorage.setItem("token", data.token);
   $("error").innerText = "";
   loadDashboard();
 };
 
-// dashboard
+/* ── dashboard (unchanged logic) ── */
 async function loadDashboard() {
   const auth = await api("/isAuth");
-  if (!auth.res.ok) {
-    logout(false);
-    return;
-  }
-
+  if (!auth.res.ok) { logout(false); return; }
   const { res, data } = await api("/dashboard");
-  if (!res.ok) {
-    alert(data.error || "Error loading dashboard");
-    return;
-  }
+  if (!res.ok) { alert(data.error || "Error loading dashboard"); return; }
 
   $("loginDiv").classList.add("hidden");
   $("dashboardDiv").classList.remove("hidden");
+  $("sidebarName").textContent = data.username || "—";
+  $("sidebarAvatar").textContent = (data.username || "U")[0].toUpperCase();
+  CURRENT_ROLE = data.role;
+  showSidebarForRole(data.role);
+  $("topbarSub").innerText = "Welcome back, " + (data.username || "—");
 
-  $("roleTitle").innerText = "Dashboard (" + data.role + ")";
-
-  $("customerSection").classList.add("hidden");
-  $("staffSection").classList.add("hidden");
-  $("adminSection").classList.add("hidden");
+  // hide all views first
+  document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
 
   if (data.role === "customer") {
-    $("customerSection").classList.remove("hidden");
-    $("profile").innerHTML = `
-      <strong>Username:</strong> ${data.username || "-"}<br>
-      <strong>Role:</strong> ${data.role}<br>
-      <strong>Member ID:</strong> ${data.profile?.MemberID || "-"}<br>
-      <strong>Name:</strong> ${data.profile?.Name || "-"}<br>
-      <strong>Email:</strong> ${data.profile?.Email || "-"}<br>
-      <strong>Phone:</strong> ${data.profile?.PhoneNumber || "-"}<br>
-      <strong>Address:</strong> ${data.profile?.Address || "-"}<br>
-      <strong>Age:</strong> ${data.profile?.Age || "-"}
-    `;
+    $("roleTitle").innerText = "My Profile";
+    $("profile").style.display = "none";
 
-    $("profileName").value = data.profile?.Name || "";
-    $("profileEmail").value = data.profile?.Email || "";
-    $("profilePhone").value = data.profile?.PhoneNumber || "";
-    $("profileAddress").value = data.profile?.Address || "";
-    $("profileAge").value = data.profile?.Age || "";
+    // build profile display
+    const p = data.profile || {};
+    $("profileDisplay").innerHTML = `
+      <div class="profile-field"><span class="pf-label">Member ID</span><span class="pf-value">${p.MemberID || "—"}</span></div>
+      <div class="profile-field"><span class="pf-label">Name</span><span class="pf-value">${p.Name || "—"}</span></div>
+      <div class="profile-field"><span class="pf-label">Email</span><span class="pf-value">${p.Email || "—"}</span></div>
+      <div class="profile-field"><span class="pf-label">Phone</span><span class="pf-value">${p.PhoneNumber || "—"}</span></div>
+      <div class="profile-field"><span class="pf-label">Age</span><span class="pf-value">${p.Age || "—"}</span></div>
+      <div class="profile-field"><span class="pf-label">Address</span><span class="pf-value">${p.Address || "—"}</span></div>
+    `;
+    $("profileName").value    = p.Name || "";
+    $("profileEmail").value   = p.Email || "";
+    $("profilePhone").value   = p.PhoneNumber || "";
+    $("profileAddress").value = p.Address || "";
+    $("profileAge").value     = p.Age || "";
+
+    $("view-cust-profile").classList.add('active');
 
     $("customerTable").innerHTML = "";
     (data.orders || []).forEach(o => {
-      $("customerTable").innerHTML += `
-        <tr>
-          <td>${o.OrderID}</td>
-          <td>${o.OrderStatus}</td>
-          <td>${o.Quantity}</td>
-          <td>${o.DeliveryStatus || "-"}</td>
-          <td>${o.PickupDate || "-"} ${o.PickupTime || ""}</td>
-          <td>${o.DeliveryDate || "-"} ${o.DeliveryTime || ""}</td>
-        </tr>`;
+      $("customerTable").innerHTML += `<tr>
+        <td>${o.OrderID}</td><td>${o.OrderStatus}</td><td>${o.Quantity}</td>
+        <td>${o.DeliveryStatus || "—"}</td>
+        <td>${o.PickupDate || "—"} ${o.PickupTime || ""}</td>
+        <td>${o.DeliveryDate || "—"} ${o.DeliveryTime || ""}</td>
+      </tr>`;
     });
+    if (!data.orders || data.orders.length === 0)
+      $("customerTable").innerHTML = `<tr class="empty-row"><td colspan="6">No orders yet</td></tr>`;
   }
 
   if (data.role === "staff") {
-    $("staffSection").classList.remove("hidden");
-    $("profile").innerHTML = `
-      <strong>Username:</strong> ${data.username || "-"}<br>
-      <strong>Role:</strong> ${data.role}<br>
-      <strong>Staff ID:</strong> ${data.profile?.StaffID || "-"}<br>
-      <strong>Name:</strong> ${data.profile?.Name || "-"}<br>
-      <strong>Staff Role:</strong> ${data.profile?.Role || "-"}<br>
-      <strong>Contact:</strong> ${data.profile?.ContactNumber || "-"}
-    `;
+    $("roleTitle").innerText = "Assigned Tasks";
+    const p = data.profile || {};
+    $("profile").innerHTML = `<strong>Name:</strong> ${p.Name || "—"} &nbsp; <strong>Role:</strong> ${p.Role || "—"} &nbsp; <strong>Contact:</strong> ${p.ContactNumber || "—"}`;
+    $("profile").style.display = "block";
+    $("view-staff-tasks").classList.add('active');
 
-    $("pickupTable").innerHTML = "";
-    if (!data.pickups || data.pickups.length === 0) {
-      $("pickupTable").innerHTML = `<tr><td colspan="4">No pickups</td></tr>`;
-    } else {
-      data.pickups.forEach(p => {
-        $("pickupTable").innerHTML += `
-          <tr>
-            <td>${p.OrderID}</td>
-            <td>${p.CustomerName || "-"}</td>
-            <td>${p.PickupDate || "-"}</td>
-            <td>${p.PickupTime || "-"}</td>
-          </tr>`;
-      });
-    }
-
-    $("deliveryTable").innerHTML = "";
-    if (!data.deliveries || data.deliveries.length === 0) {
-      $("deliveryTable").innerHTML = `<tr><td colspan="4">No deliveries</td></tr>`;
-    } else {
-      data.deliveries.forEach(d => {
-        $("deliveryTable").innerHTML += `
-          <tr>
-            <td>${d.OrderID}</td>
-            <td>${d.CustomerName || "-"}</td>
-            <td>${d.DeliveryDate || "-"}</td>
-            <td>${d.DeliveryTime || "-"}</td>
-          </tr>`;
-      });
-    }
+    // merge pickups + deliveries into one tasks table
+    let taskHtml = "";
+    (data.pickups || []).forEach(p => {
+      taskHtml += `<tr>
+        <td>${p.OrderID}</td>
+        <td><span class="task-badge task-pickup">Pickup</span></td>
+        <td>${p.CustomerName || "—"}</td>
+        <td>${p.PickupDate || "—"}</td>
+        <td>${p.PickupTime || "—"}</td>
+      </tr>`;
+    });
+    (data.deliveries || []).forEach(d => {
+      taskHtml += `<tr>
+        <td>${d.OrderID}</td>
+        <td><span class="task-badge task-delivery">Delivery</span></td>
+        <td>${d.CustomerName || "—"}</td>
+        <td>${d.DeliveryDate || "—"}</td>
+        <td>${d.DeliveryTime || "—"}</td>
+      </tr>`;
+    });
+    $("staffTasksTable").innerHTML = taskHtml || `<tr class="empty-row"><td colspan="5">No tasks assigned</td></tr>`;
   }
 
   if (data.role === "admin") {
-    $("adminSection").classList.remove("hidden");
-    $("profile").innerHTML = `
-      <strong>Username:</strong> ${data.username || "-"}<br>
-      <strong>Role:</strong> admin
-    `;
+    $("roleTitle").innerText = "Orders";
+    $("profile").innerHTML = `<strong>Username:</strong> ${data.username || "—"} &nbsp;&nbsp; <strong>Role:</strong> Administrator`;
+    $("profile").style.display = "block";
+    $("view-admin-orders").classList.add('active');
 
-    ALL_ORDERS = data.orders || [];
+    ALL_ORDERS    = data.orders || [];
     ALL_CUSTOMERS = data.customers || [];
-    ALL_STAFF = data.staffMembers || [];
-
+    ALL_STAFF     = data.staffMembers || [];
     renderOrders();
     renderCustomers();
     renderStaff();
-    await loadLogs();
   }
 }
 
-// ---------------- ORDERS ----------------
+/* ── ORDERS ── */
 function renderOrders() {
   const search = $("orderSearch").value.toLowerCase();
   const filter = $("orderFilter").value;
   let html = "";
-
   ALL_ORDERS.forEach(o => {
-    if (
-      search &&
-      !String(o.OrderID).includes(search) &&
-      !String(o.CustomerName || "").toLowerCase().includes(search)
-    ) return;
-
+    if (search && !String(o.OrderID).includes(search) && !String(o.CustomerName || "").toLowerCase().includes(search)) return;
     if (filter && o.OrderStatus !== filter) return;
-
-    html += `
-      <tr>
-        <td>${o.OrderID}</td>
-        <td>${o.CustomerName || "-"}</td>
-        <td>${o.OrderStatus}</td>
-        <td>${o.Quantity}</td>
-        <td>${o.DeliveryStatus || "-"}</td>
-        <td>
-          <button onclick="editOrder(${o.OrderID})">Edit</button>
-          <button class="danger" onclick="deleteOrder(${o.OrderID})">Delete</button>
-        </td>
-      </tr>`;
+    const statusClass = { Pending:'pill-pending', Processing:'pill-processing', Completed:'pill-completed', Delivered:'pill-delivered' }[o.OrderStatus] || 'pill-pending';
+    html += `<tr>
+      <td>#${o.OrderID}</td><td>${o.CustomerName || "—"}</td>
+      <td><span class="status-pill ${statusClass}">${o.OrderStatus}</span></td>
+      <td>${o.Quantity}</td><td>${o.DeliveryStatus || "—"}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editOrder(${o.OrderID})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteOrder(${o.OrderID})">Delete</button>
+      </td>
+    </tr>`;
   });
-
-  $("orderTable").innerHTML = html || `<tr><td colspan="6">No orders found</td></tr>`;
+  $("orderTable").innerHTML = html || `<tr class="empty-row"><td colspan="6">No orders found</td></tr>`;
 }
 
 $("orderSearch").addEventListener("input", renderOrders);
 $("orderFilter").addEventListener("change", renderOrders);
 
-$("orderForm").onsubmit = async (e) => {
-  e.preventDefault();
-
+async function submitOrderForm() {
   const id = $("orderId").value;
+  const payload = { memberId: $("memberId").value, quantity: $("quantity").value, orderStatus: $("orderStatus").value, deliveryStatus: $("deliveryStatus").value };
+  const { res, data } = await api(id ? `/orders/${id}` : "/orders", { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
+  if (!res.ok) { alert(data.error || "Error saving order"); return; }
+  closeModal('order'); resetOrderForm(); loadDashboard();
+}
 
-  const payload = {
-    memberId: $("memberId").value,
-    quantity: $("quantity").value,
-    orderStatus: $("orderStatus").value,
-    deliveryStatus: $("deliveryStatus").value
-  };
-
-  const { res, data } = await api(id ? `/orders/${id}` : "/orders", {
-    method: id ? "PUT" : "POST",
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) {
-    alert(data.error || "Error saving order");
-    return;
-  }
-
-  resetOrderForm();
-  loadDashboard();
-};
+// keep original form submit working too
+const orderFormEl = document.getElementById('orderForm');
+if (orderFormEl) orderFormEl.onsubmit = async (e) => { e.preventDefault(); await submitOrderForm(); };
 
 function editOrder(id) {
   const o = ALL_ORDERS.find(x => String(x.OrderID) === String(id));
   if (!o) return;
-
-  $("orderId").value = o.OrderID;
-  $("memberId").value = o.MemberID || "";
-  $("quantity").value = o.Quantity || "";
-  $("orderStatus").value = o.OrderStatus || "";
+  $("orderId").value = o.OrderID; $("memberId").value = o.MemberID || "";
+  $("quantity").value = o.Quantity || ""; $("orderStatus").value = o.OrderStatus || "";
   $("deliveryStatus").value = o.DeliveryStatus || "";
+  $("orderModalTitle").innerText = "Edit Order #" + o.OrderID;
   $("orderSaveBtn").innerText = "Update Order";
+  openModal('order');
 }
 
 function resetOrderForm() {
-  $("orderId").value = "";
-  $("memberId").value = "";
-  $("quantity").value = "";
-  $("orderStatus").value = "";
-  $("deliveryStatus").value = "";
+  $("orderId").value = ""; $("memberId").value = ""; $("quantity").value = "";
+  $("orderStatus").value = ""; $("deliveryStatus").value = "";
+  $("orderModalTitle").innerText = "Add Order";
   $("orderSaveBtn").innerText = "Save Order";
 }
 
 async function deleteOrder(id) {
   if (!confirm("Delete order? This will be logged.")) return;
-
   const { res, data } = await api(`/orders/${id}`, { method: "DELETE" });
-
-  if (!res.ok) {
-    alert(data.error || "Delete failed");
-    return;
-  }
-
+  if (!res.ok) { alert(data.error || "Delete failed"); return; }
   loadDashboard();
 }
 
-// ---------------- CUSTOMERS ----------------
+/* ── CUSTOMERS ── */
 function renderCustomers() {
   const search = $("customerSearch").value.toLowerCase();
   let html = "";
-
   ALL_CUSTOMERS.forEach(c => {
-    if (
-      search &&
-      !String(c.MemberID).includes(search) &&
-      !String(c.Name || "").toLowerCase().includes(search) &&
-      !String(c.Username || "").toLowerCase().includes(search)
-    ) return;
-
-    html += `
-      <tr>
-        <td>${c.MemberID}</td>
-        <td>${c.Name || "-"}</td>
-        <td>${c.Email || "-"}</td>
-        <td>${c.PhoneNumber || "-"}</td>
-        <td>${c.Address || "-"}</td>
-        <td>${c.Age ?? "-"}</td>
-        <td>${c.UserID ?? "-"}</td>
-        <td>${c.Username || "-"}</td>
-        <td>
-          <button onclick="editCustomer(${c.MemberID})">Edit</button>
-          <button class="danger" onclick="deleteCustomer(${c.MemberID})">Delete</button>
-        </td>
-      </tr>`;
+    if (search && !String(c.MemberID).includes(search) && !String(c.Name || "").toLowerCase().includes(search) && !String(c.Username || "").toLowerCase().includes(search)) return;
+    html += `<tr>
+      <td>${c.MemberID}</td><td>${c.Name || "—"}</td><td class="td-muted">${c.Email || "—"}</td>
+      <td>${c.PhoneNumber || "—"}</td><td class="td-muted">${c.Address || "—"}</td>
+      <td>${c.Age ?? "—"}</td><td>${c.UserID ?? "—"}</td><td>${c.Username || "—"}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editCustomer(${c.MemberID})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${c.MemberID})">Delete</button>
+      </td>
+    </tr>`;
   });
-
-  $("customerTableAdmin").innerHTML = html || `<tr><td colspan="9">No customers found</td></tr>`;
+  $("customerTableAdmin").innerHTML = html || `<tr class="empty-row"><td colspan="9">No customers found</td></tr>`;
 }
 
 $("customerSearch").addEventListener("input", renderCustomers);
 
-$("customerForm").onsubmit = async (e) => {
-  e.preventDefault();
-
+async function submitCustomerForm() {
   const editingId = $("customerEditingId").value;
+
   const payload = {
-    memberId: $("c_memberId").value,
+    memberId: parseInt($("c_memberId").value, 10),
     name: $("c_name").value,
     email: $("c_email").value,
     phoneNumber: $("c_phone").value,
     address: $("c_address").value,
-    age: $("c_age").value,
-    userId: $("c_userId").value
-  };
+    age: parseInt($("c_age").value, 10) || null,
+    userId: parseInt($("c_userId").value, 10)
+    };
 
-  const { res, data } = await api(editingId ? `/customers/${editingId}` : "/customers", {
-    method: editingId ? "PUT" : "POST",
-    body: JSON.stringify(payload)
-  });
+  // Optional front-end validation
+  if (!payload.MemberID || !payload.UserID) {
+    alert("MemberID and UserID are required");
+    return;
+  }
+
+  const { res, data } = await api(
+    editingId ? `/customers/${editingId}` : "/customers",
+    {
+      method: editingId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    }
+  );
 
   if (!res.ok) {
     alert(data.error || "Error saving customer");
     return;
   }
 
+  alert("Customer saved successfully!");
+  closeModal('customer');
   resetCustomerForm();
   loadDashboard();
-};
+}
+
+const customerFormEl = document.getElementById('customerForm');
+if (customerFormEl) customerFormEl.onsubmit = async (e) => { e.preventDefault(); await submitCustomerForm(); };
 
 function editCustomer(memberId) {
   const c = ALL_CUSTOMERS.find(x => String(x.MemberID) === String(memberId));
   if (!c) return;
-
-  $("customerEditingId").value = c.MemberID;
-  $("c_memberId").value = c.MemberID || "";
-  $("c_memberId").readOnly = true;
-  $("c_name").value = c.Name || "";
-  $("c_email").value = c.Email || "";
-  $("c_phone").value = c.PhoneNumber || "";
-  $("c_address").value = c.Address || "";
-  $("c_age").value = c.Age ?? "";
-  $("c_userId").value = c.UserID ?? "";
+  $("customerEditingId").value = c.MemberID; $("c_memberId").value = c.MemberID || ""; $("c_memberId").readOnly = true;
+  $("c_name").value = c.Name || ""; $("c_email").value = c.Email || ""; $("c_phone").value = c.PhoneNumber || "";
+  $("c_address").value = c.Address || ""; $("c_age").value = c.Age ?? ""; $("c_userId").value = c.UserID ?? "";
   $("c_userId").disabled = true;
+  $("customerModalTitle").innerText = "Edit Customer";
   $("customerSaveBtn").innerText = "Update Customer";
+  openModal('customer');
 }
 
 function resetCustomerForm() {
-  $("customerEditingId").value = "";
-  $("c_memberId").value = "";
-  $("c_memberId").readOnly = false;
-  $("c_name").value = "";
-  $("c_email").value = "";
-  $("c_phone").value = "";
-  $("c_address").value = "";
-  $("c_age").value = "";
-  $("c_userId").value = "";
+  $("customerEditingId").value = ""; $("c_memberId").value = ""; $("c_memberId").readOnly = false;
+  $("c_name").value = ""; $("c_email").value = ""; $("c_phone").value = "";
+  $("c_address").value = ""; $("c_age").value = ""; $("c_userId").value = "";
   $("c_userId").disabled = false;
+  $("customerModalTitle").innerText = "Add Customer";
   $("customerSaveBtn").innerText = "Add Customer";
 }
 
 async function deleteCustomer(memberId) {
   if (!confirm("Delete customer? This may also delete the linked login if safe.")) return;
-
   const { res, data } = await api(`/customers/${memberId}`, { method: "DELETE" });
-
-  if (!res.ok) {
-    alert(data.error || "Delete failed");
-    return;
-  }
-
+  if (!res.ok) { alert(data.error || "Delete failed"); return; }
   loadDashboard();
 }
 
-// ---------------- STAFF ----------------
+/* ── STAFF ── */
 function renderStaff() {
   const search = $("staffSearch").value.toLowerCase();
   let html = "";
-
   ALL_STAFF.forEach(s => {
-    if (
-      search &&
-      !String(s.StaffID).includes(search) &&
-      !String(s.Name || "").toLowerCase().includes(search) &&
-      !String(s.Username || "").toLowerCase().includes(search)
-    ) return;
-
-    html += `
-      <tr>
-        <td>${s.StaffID}</td>
-        <td>${s.Name || "-"}</td>
-        <td>${s.Role || "-"}</td>
-        <td>${s.ContactNumber || "-"}</td>
-        <td>${s.UserID ?? "-"}</td>
-        <td>${s.Username || "-"}</td>
-        <td>
-          <button onclick="editStaff(${s.StaffID})">Edit</button>
-          <button class="danger" onclick="deleteStaff(${s.StaffID})">Delete</button>
-        </td>
-      </tr>`;
+    if (search && !String(s.StaffID).includes(search) && !String(s.Name || "").toLowerCase().includes(search) && !String(s.Username || "").toLowerCase().includes(search)) return;
+    html += `<tr>
+      <td>${s.StaffID}</td><td>${s.Name || "—"}</td><td>${s.Role || "—"}</td>
+      <td>${s.ContactNumber || "—"}</td><td>${s.UserID ?? "—"}</td><td>${s.Username || "—"}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editStaff(${s.StaffID})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStaff(${s.StaffID})">Delete</button>
+      </td>
+    </tr>`;
   });
-
-  $("staffTableAdmin").innerHTML = html || `<tr><td colspan="7">No staff found</td></tr>`;
+  $("staffTableAdmin").innerHTML = html || `<tr class="empty-row"><td colspan="7">No staff found</td></tr>`;
 }
 
 $("staffSearch").addEventListener("input", renderStaff);
 
-$("staffForm").onsubmit = async (e) => {
-  e.preventDefault();
-
+async function submitStaffForm() {
   const editingId = $("staffEditingId").value;
-  const payload = {
-    staffId: $("s_staffId").value,
-    name: $("s_name").value,
-    role: $("s_role").value,
-    contactNumber: $("s_contact").value,
-    userId: $("s_userId").value
-  };
+  const payload = { staffId: $("s_staffId").value, name: $("s_name").value, role: $("s_role").value, contactNumber: $("s_contact").value, userId: $("s_userId").value };
+  const { res, data } = await api(editingId ? `/staff/${editingId}` : "/staff", { method: editingId ? "PUT" : "POST", body: JSON.stringify(payload) });
+  if (!res.ok) { alert(data.error || "Error saving staff"); return; }
+  closeModal('staff'); resetStaffForm(); loadDashboard();
+}
 
-  const { res, data } = await api(editingId ? `/staff/${editingId}` : "/staff", {
-    method: editingId ? "PUT" : "POST",
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) {
-    alert(data.error || "Error saving staff");
-    return;
-  }
-
-  resetStaffForm();
-  loadDashboard();
-};
+const staffFormEl = document.getElementById('staffForm');
+if (staffFormEl) staffFormEl.onsubmit = async (e) => { e.preventDefault(); await submitStaffForm(); };
 
 function editStaff(staffId) {
   const s = ALL_STAFF.find(x => String(x.StaffID) === String(staffId));
   if (!s) return;
-
-  $("staffEditingId").value = s.StaffID;
-  $("s_staffId").value = s.StaffID || "";
-  $("s_staffId").readOnly = true;
-  $("s_name").value = s.Name || "";
-  $("s_role").value = s.Role || "";
-  $("s_contact").value = s.ContactNumber || "";
-  $("s_userId").value = s.UserID ?? "";
-  $("s_userId").disabled = true;
+  $("staffEditingId").value = s.StaffID; $("s_staffId").value = s.StaffID || ""; $("s_staffId").readOnly = true;
+  $("s_name").value = s.Name || ""; $("s_role").value = s.Role || ""; $("s_contact").value = s.ContactNumber || "";
+  $("s_userId").value = s.UserID ?? ""; $("s_userId").disabled = true;
+  $("staffModalTitle").innerText = "Edit Staff";
   $("staffSaveBtn").innerText = "Update Staff";
+  openModal('staff');
 }
 
 function resetStaffForm() {
-  $("staffEditingId").value = "";
-  $("s_staffId").value = "";
-  $("s_staffId").readOnly = false;
-  $("s_name").value = "";
-  $("s_role").value = "";
-  $("s_contact").value = "";
-  $("s_userId").value = "";
-  $("s_userId").disabled = false;
+  $("staffEditingId").value = ""; $("s_staffId").value = ""; $("s_staffId").readOnly = false;
+  $("s_name").value = ""; $("s_role").value = ""; $("s_contact").value = "";
+  $("s_userId").value = ""; $("s_userId").disabled = false;
+  $("staffModalTitle").innerText = "Add Staff";
   $("staffSaveBtn").innerText = "Add Staff";
 }
 
 async function deleteStaff(staffId) {
   if (!confirm("Delete staff? This may also delete the linked login if safe.")) return;
-
   const { res, data } = await api(`/staff/${staffId}`, { method: "DELETE" });
-
-  if (!res.ok) {
-    alert(data.error || "Delete failed");
-    return;
-  }
-
+  if (!res.ok) { alert(data.error || "Delete failed"); return; }
   loadDashboard();
 }
 
-// ---------------- LOGS ----------------
+/* ── LOGS (unchanged) ── */
 async function loadLogs() {
   const { res, data } = await api("/logs");
   if (!res.ok) return;
-
   $("logBox").value = data.logs || "";
 }
 
-// profile update for customer
+/* ── PROFILE UPDATE (unchanged) ── */
 $("profileForm").onsubmit = async (e) => {
   e.preventDefault();
 
+  const payload = {
+    name: $("profileName").value.trim(),
+    email: $("profileEmail").value.trim(),
+  };
+
   const { res, data } = await api("/me/customer", {
     method: "PUT",
-    body: JSON.stringify({
-      name: $("profileName").value,
-      email: $("profileEmail").value,
-      phoneNumber: $("profilePhone").value,
-      address: $("profileAddress").value,
-      age: $("profileAge").value
-    })
+    body: JSON.stringify(payload)
   });
 
   if (!res.ok) {
@@ -761,20 +1100,38 @@ $("profileForm").onsubmit = async (e) => {
     return;
   }
 
-  loadDashboard();
+  // Update profile card
+  $("profile").innerHTML = `<b>${payload.name}</b><br>${payload.email}`;
+
+  // Show success message inside form
+  let msg = $("profileForm").querySelector(".successMsg");
+  if (!msg) {
+    msg = document.createElement("div");
+    msg.className = "successMsg";
+    msg.style.color = "green";
+    msg.style.marginTop = "10px";
+    $("profileForm").appendChild(msg);
+  }
+  msg.innerText = "Profile updated successfully!";
+
+  // Optional: disable inputs
+  $("profileName").disabled = true;
+  $("profileEmail").disabled = true;
+
+  // Hide the save button
+  $("profileForm").querySelector("button[type='submit']").style.display = "none";
 };
 
-// logout
+/* ── LOGOUT (unchanged) ── */
 function logout(clear = true) {
   if (clear) localStorage.removeItem("token");
   location.reload();
 }
 
-// auto reload if token exists
-if (localStorage.getItem("token")) {
-  loadDashboard();
-}
-</script>
+/* ── AUTO LOGIN (unchanged) ── */
+if (localStorage.getItem("token")) { loadDashboard(); }
 
+
+</script>
 </body>
 </html>
