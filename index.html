@@ -112,8 +112,6 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(-
 .btn-login:hover { opacity: 0.9; }
 .btn-login:active { transform: scale(0.985); }
 
-
-
 /* ══════════════════════
    DASHBOARD SHELL
 ══════════════════════ */
@@ -266,9 +264,6 @@ input[type="hidden"] { display: none !important; }
 </head>
 <body>
 
-<!-- ══════════════════════
-     LOGIN
-══════════════════════ -->
 <div id="loginDiv">
   <div class="login-inner">
     <div class="login-brand">
@@ -318,12 +313,8 @@ input[type="hidden"] { display: none !important; }
   </div>
 </div>
 
-<!-- ══════════════════════
-     DASHBOARD
-══════════════════════ -->
 <div id="dashboardDiv" class="hidden">
 
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-mark">
@@ -332,7 +323,6 @@ input[type="hidden"] { display: none !important; }
       <div class="logo-text">Laundry<span>MS</span></div>
     </div>
 
-    <!-- Customer nav -->
     <div class="sidebar-section" id="navCustomer" style="display:none;">
       <div class="sidebar-label">My Account</div>
       <button class="nav-item active" onclick="switchView('cust-profile')">
@@ -345,7 +335,6 @@ input[type="hidden"] { display: none !important; }
       </button>
     </div>
 
-    <!-- Staff nav -->
     <div class="sidebar-section" id="navStaff" style="display:none;">
       <div class="sidebar-label">My Tasks</div>
       <button class="nav-item active" onclick="switchView('staff-tasks')">
@@ -354,7 +343,6 @@ input[type="hidden"] { display: none !important; }
       </button>
     </div>
 
-    <!-- Admin nav -->
     <div class="sidebar-section" id="navAdmin" style="display:none;">
       <div class="sidebar-label">Manage</div>
       <button class="nav-item active" id="nav-orders" onclick="switchView('admin-orders')">
@@ -390,12 +378,11 @@ input[type="hidden"] { display: none !important; }
     </div>
   </aside>
 
-  <!-- Main -->
   <div class="main-area">
     <div class="topbar">
       <div class="topbar-left">
         <div class="topbar-title" id="roleTitle">Dashboard</div>
-        <div class="topbar-sub"   id="topbarSub">Loading…</div>
+        <div class="topbar-sub" id="topbarSub">Loading…</div>
       </div>
       <button onclick="logout()" class="logout-top">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -406,7 +393,6 @@ input[type="hidden"] { display: none !important; }
     <div class="content-area">
       <div id="profile"></div>
 
-      <!-- ── CUSTOMER: Profile view ── -->
       <div id="view-cust-profile" class="admin-view active">
         <div class="section-card">
           <div class="section-header">
@@ -417,88 +403,88 @@ input[type="hidden"] { display: none !important; }
             </button>
           </div>
           <div class="section-body">
-            <div id="profileDisplay" class="profile-grid"></div>
-            <form id="profileForm" style="display:none;" class="styled-form">
-              <div class="note">This form updates only the Customer table, not the Users table.</div>
-              <div class="form-row">
-                <div class="sfield"><label>Name</label><input id="profileName" placeholder="Full name"/></div>
-                <div class="sfield"><label>Email</label><input id="profileEmail" placeholder="Email"/></div>
-              </div>
-              <div class="form-row">
-                <div class="sfield"><label>Phone</label><input id="profilePhone" placeholder="Phone"/></div>
-                <div class="sfield"><label>Age</label><input id="profileAge" placeholder="Age"/></div>
-              </div>
-              <div class="sfield"><label>Address</label><input id="profileAddress" placeholder="Address"/></div>
-              <div style="display:flex;gap:8px;margin-top:4px;">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn btn-secondary" onclick="toggleProfileEdit()">Cancel</button>
-              </div>
+            <div class="profile-grid" id="profileDisplay">
+              <div class="profile-field"><span class="pf-label">Name</span><span class="pf-value" id="dispName">—</span></div>
+              <div class="profile-field"><span class="pf-label">Email</span><span class="pf-value" id="dispEmail">—</span></div>
+              <div class="profile-field"><span class="pf-label">Phone</span><span class="pf-value" id="dispPhone">—</span></div>
+              <div class="profile-field"><span class="pf-label">Address</span><span class="pf-value" id="dispAddress">—</span></div>
+            </div>
+            <form id="profileForm" style="display:none; max-width:400px;">
+              <div class="sfield"><label>Name</label><input id="profileName" required /></div>
+              <div class="sfield"><label>Email</label><input id="profileEmail" type="email" required /></div>
+              <button type="submit" class="btn btn-primary" style="margin-top:10px; width:fit-content;">Save Changes</button>
             </form>
           </div>
         </div>
       </div>
 
-      <!-- ── CUSTOMER: Orders view ── -->
       <div id="view-cust-orders" class="admin-view">
         <div class="section-card">
-          <div class="section-header"><div class="section-title">My Orders</div></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Order ID</th><th>Status</th><th>Qty</th><th>Delivery Status</th><th>Pickup</th><th>Delivery Date</th></tr></thead>
-              <tbody id="customerTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── STAFF: Tasks view ── -->
-      <div id="view-staff-tasks" class="admin-view">
-        <div class="section-card">
-          <div class="section-header"><div class="section-title">Assigned Tasks</div></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Order ID</th><th>Task</th><th>Customer</th><th>Date</th><th>Time</th></tr></thead>
-              <tbody id="staffTasksTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── ADMIN: Orders view ── -->
-      <div id="view-admin-orders" class="admin-view active">
-        <div class="section-card">
           <div class="section-header">
-            <div class="section-title">Orders</div>
-            <button class="btn btn-primary btn-sm" onclick="openModal('order')">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Add Order
-            </button>
+            <div class="section-title">My Orders</div>
           </div>
-          <div class="section-body">
-            <div class="search-row">
-              <div class="search-wrap">
-                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input id="orderSearch" placeholder="Search by Order ID or customer name…" />
-              </div>
-              <select id="orderFilter" class="filter-select">
-                <option value="">All Status</option>
-                <option>Processing</option>
-                <option>Completed</option>
-                <option>Pending</option>
-                <option>Delivered</option>
-              </select>
-            </div>
+          <div class="section-body" style="padding:0;">
             <div class="table-wrap">
               <table>
-                <thead><tr><th>ID</th><th>Customer</th><th>Status</th><th>Qty</th><th>Delivery</th><th>Actions</th></tr></thead>
-                <tbody id="orderTable"></tbody>
+                <thead><tr><th>Order ID</th><th>Status</th><th>Quantity</th><th>Delivery Status</th><th>Pickup</th><th>Delivery</th></tr></thead>
+                <tbody id="customerTable"></tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ── ADMIN: Customers view ── -->
+      <div id="view-staff-tasks" class="admin-view">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">My Assignments</div>
+          </div>
+          <div class="section-body" style="padding:0;">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Order ID</th><th>Type</th><th>Customer</th><th>Scheduled Date</th><th>Time</th></tr></thead>
+                <tbody id="staffTasksTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-admin-orders" class="admin-view">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">All Orders</div>
+          </div>
+          <div class="section-body">
+            <div class="search-row">
+                <div class="search-wrap">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input id="orderSearch" placeholder="Search by ID or customer…" />
+                </div>
+                
+                <select id="orderFilter" class="filter-select">
+                <option value="">All Statuses</option>
+                <option value="Processing">Processing</option>
+                <option value="Completed">Completed</option>
+                </select>
+
+                <select id="deliveryFilter" class="filter-select">
+                <option value="">All Deliveries</option>
+                <option value="Pending">Pending</option>
+                <option value="Delivered">Delivered</option>
+                </select>
+            </div>
+            
+            <div class="table-wrap">
+                <table>
+                <thead><tr><th>ID</th><th>Customer</th><th>Status</th><th>Qty</th><th>Delivery</th><th>Actions</th></tr></thead>
+                <tbody id="orderTable"></tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+      </div>
+
       <div id="view-admin-customers" class="admin-view">
         <div class="section-card">
           <div class="section-header">
@@ -515,7 +501,7 @@ input[type="hidden"] { display: none !important; }
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Age</th><th>UID</th><th>Username</th><th>Actions</th></tr></thead>
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Age</th><th>Username</th><th>Actions</th></tr></thead>
                 <tbody id="customerTableAdmin"></tbody>
               </table>
             </div>
@@ -523,7 +509,6 @@ input[type="hidden"] { display: none !important; }
         </div>
       </div>
 
-      <!-- ── ADMIN: Staff view ── -->
       <div id="view-admin-staff" class="admin-view">
         <div class="section-card">
           <div class="section-header">
@@ -536,11 +521,11 @@ input[type="hidden"] { display: none !important; }
           <div class="section-body">
             <div class="search-wrap">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input id="staffSearch" placeholder="Search by ID, name or username…" />
+              <input id="staffSearch" placeholder="Search by ID, name or role…" />
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Staff ID</th><th>Name</th><th>Role</th><th>Contact</th><th>User ID</th><th>Username</th><th>Actions</th></tr></thead>
+                <thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Contact</th><th>Actions</th></tr></thead>
                 <tbody id="staffTableAdmin"></tbody>
               </table>
             </div>
@@ -548,15 +533,17 @@ input[type="hidden"] { display: none !important; }
         </div>
       </div>
 
-      <!-- ── ADMIN: Logs view ── -->
       <div id="view-admin-logs" class="admin-view">
         <div class="section-card">
           <div class="section-header">
-            <div class="section-title">Audit Logs</div>
-            <button class="btn btn-secondary btn-sm" onclick="loadLogs()">Refresh</button>
+            <div class="section-title">System Audit Logs</div>
+            <button class="btn btn-secondary btn-sm" onclick="fetchLogs()">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Refresh
+            </button>
           </div>
           <div class="section-body">
-            <textarea id="logBox" rows="20" readonly placeholder="No logs yet…"></textarea>
+            <textarea id="logBox" rows="20" readonly></textarea>
           </div>
         </div>
       </div>
@@ -565,46 +552,6 @@ input[type="hidden"] { display: none !important; }
   </div>
 </div>
 
-<!-- ══════════════════════
-     MODALS
-══════════════════════ -->
-
-<!-- Order modal -->
-<div class="modal-overlay" id="modalOrder">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="orderModalTitle">Add Order</div>
-      <button class="modal-close" onclick="closeModal('order')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="orderId" />
-      <div class="form-row">
-        <div class="sfield"><label>Member ID</label><input id="memberId" placeholder="Member ID"/></div>
-        <div class="sfield"><label>Quantity</label><input id="quantity" placeholder="Quantity"/></div>
-      </div>
-      <div class="form-row">
-        <div class="sfield"><label>Order Status</label>
-          <select id="orderStatus">
-            <option value="">Select status</option>
-            <option>Pending</option><option>Processing</option><option>Completed</option><option>Delivered</option>
-          </select>
-        </div>
-        <div class="sfield"><label>Delivery Status</label>
-          <select id="deliveryStatus">
-            <option value="">Select status</option>
-            <option>Pending</option><option>Dispatched</option><option>Delivered</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('order')">Cancel</button>
-      <button class="btn btn-primary" id="orderSaveBtn" onclick="submitOrderForm()">Save Order</button>
-    </div>
-  </div>
-</div>
-
-<!-- Customer modal -->
 <div class="modal-overlay" id="modalCustomer">
   <div class="modal">
     <div class="modal-header">
@@ -614,18 +561,21 @@ input[type="hidden"] { display: none !important; }
     <div class="modal-body">
       <input type="hidden" id="customerEditingId" />
       <div class="form-row">
-        <div class="sfield"><label>Member ID</label><input id="c_memberId" placeholder="Member ID" required/></div>
+        <div class="sfield"><label>Member ID</label><input id="c_memberId" placeholder="e.g. CUST001" required/></div>
         <div class="sfield"><label>Name</label><input id="c_name" placeholder="Full name" required/></div>
       </div>
       <div class="form-row">
-        <div class="sfield"><label>Email</label><input id="c_email" placeholder="Email"/></div>
+        <div class="sfield"><label>Email</label><input id="c_email" type="email" placeholder="Email"/></div>
         <div class="sfield"><label>Phone</label><input id="c_phone" placeholder="Phone number"/></div>
       </div>
       <div class="form-row">
-        <div class="sfield"><label>Age</label><input id="c_age" placeholder="Age"/></div>
-        <div class="sfield"><label>User ID</label><input id="c_userId" type="number" placeholder="UserID (numeric)" /></div>
+        <div class="sfield"><label>Age</label><input id="c_age" type="number" placeholder="Age"/></div>
+        <div class="sfield"><label>Username</label><input id="c_username" placeholder="Required for new login" required /></div>
       </div>
-      <div class="sfield"><label>Address</label><input id="c_address" placeholder="Address"/></div>
+      <div class="form-row">
+        <div class="sfield"><label>Address</label><input id="c_address" placeholder="Address"/></div>
+        <div class="sfield"><label>Password</label><input id="c_password" type="password" placeholder="Required for new login" required /></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('customer')">Cancel</button>
@@ -634,7 +584,6 @@ input[type="hidden"] { display: none !important; }
   </div>
 </div>
 
-<!-- Staff modal -->
 <div class="modal-overlay" id="modalStaff">
   <div class="modal">
     <div class="modal-header">
@@ -651,7 +600,10 @@ input[type="hidden"] { display: none !important; }
         <div class="sfield"><label>Role</label><input id="s_role" placeholder="e.g. Pickup Staff"/></div>
         <div class="sfield"><label>Contact</label><input id="s_contact" placeholder="Contact number"/></div>
       </div>
-      <div class="sfield"><label>User ID</label><input id="s_userId" placeholder="User ID" required/></div>
+      <div class="form-row">
+        <div class="sfield"><label>Username</label><input id="s_username" placeholder="Required for login"/></div>
+        <div class="sfield"><label>Password</label><input id="s_password" type="password" placeholder="Required for login"/></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('staff')">Cancel</button>
@@ -662,88 +614,75 @@ input[type="hidden"] { display: none !important; }
 
 <script>
 const BASE_URL = "http://localhost:5000";
-const $ = (id) => document.getElementById(id);
 
 let ALL_ORDERS = [];
 let ALL_CUSTOMERS = [];
 let ALL_STAFF = [];
-let CURRENT_ROLE = "";
 
-/* ── Role button sync ── */
-function setRole(val) {
-  $("role").value = val;
-  document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('role-selected', b.dataset.val === val));
-  $("adminBox").classList.toggle("hidden", val !== "admin");
-}
-setRole("admin");
-$("role").addEventListener("change", () => setRole($("role").value));
+/* ── UI HELPERS ── */
+const $ = id => document.getElementById(id);
 
-/* ── View switching ── */
-function switchView(view) {
-  // hide all views
-  document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
-  // show target
-  const target = document.getElementById('view-' + view);
-  if (target) target.classList.add('active');
-  // update nav active state
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navMap = {
-    'admin-orders': 'nav-orders', 'admin-customers': 'nav-customers',
-    'admin-staff': 'nav-staff', 'admin-logs': 'nav-logs'
-  };
-  if (navMap[view]) {
-    const navEl = document.getElementById(navMap[view]);
-    if (navEl) navEl.classList.add('active');
+function setRole(role) {
+  $("role").value = role;
+  document.querySelectorAll('.role-btn').forEach(b => {
+    if (b.dataset.val === role) b.classList.add('role-selected');
+    else b.classList.remove('role-selected');
+  });
+  if (role === 'admin') {
+    $("adminBox").classList.remove('hidden');
+    $("adminCode").required = true;
+  } else {
+    $("adminBox").classList.add('hidden');
+    $("adminCode").required = false;
+    $("adminCode").value = "";
   }
-  // update topbar title
-  const titles = {
-    'admin-orders': 'Orders', 'admin-customers': 'Customers',
-    'admin-staff': 'Staff', 'admin-logs': 'Audit Logs',
-    'cust-profile': 'My Profile', 'cust-orders': 'My Orders',
-    'staff-tasks': 'Assigned Tasks'
-  };
-  if (titles[view]) $("roleTitle").innerText = titles[view];
-
-  // load logs when switching to logs view
-  if (view === 'admin-logs') loadLogs();
 }
 
-/* ── Sidebar for role ── */
-function showSidebarForRole(role) {
-  $("navCustomer").style.display = role === "customer" ? "block" : "none";
-  $("navStaff").style.display    = role === "staff"    ? "block" : "none";
-  $("navAdmin").style.display    = role === "admin"    ? "block" : "none";
-  $("sidebarRole").textContent   = role.charAt(0).toUpperCase() + role.slice(1);
+function switchView(viewId) {
+  document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(v => v.classList.remove('active'));
+  
+  if($("view-" + viewId)) $("view-" + viewId).classList.add('active');
+  
+  const navBtn = document.getElementById("nav-" + viewId.replace("admin-",""));
+  if (navBtn) navBtn.classList.add('active');
+
+  if (viewId === 'admin-logs') fetchLogs();
 }
 
-/* ── Modal helpers ── */
 function openModal(type) {
+  if (type === 'customer') resetCustomerForm();
+  if (type === 'staff') resetStaffForm();
   $("modal" + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('open');
 }
 function closeModal(type) {
   $("modal" + type.charAt(0).toUpperCase() + type.slice(1)).classList.remove('open');
 }
+
 // close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  o.addEventListener('click', e => {
+    if (e.target === o) o.classList.remove('open');
+  });
 });
 
 /* ── Profile edit toggle ── */
 let profileEditOpen = false;
 function toggleProfileEdit() {
   profileEditOpen = !profileEditOpen;
-  $("profileForm").style.display   = profileEditOpen ? "flex" : "none";
+  $("profileForm").style.display = profileEditOpen ? "flex" : "none";
   $("profileForm").style.flexDirection = "column";
   $("profileForm").style.gap = "12px";
   $("profileDisplay").style.display = profileEditOpen ? "none" : "grid";
   $("editBtnLabel").textContent = profileEditOpen ? "Cancel" : "Edit Profile";
 }
 
-/* ── api helper (unchanged) ── */
+/* ── api helper ── */
 async function api(url, options = {}) {
   const token = localStorage.getItem("token");
   const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
   if (token) headers.Authorization = "Bearer " + token;
+
   try {
     const res = await fetch(BASE_URL + url, { ...options, headers });
     const data = await res.json().catch(() => ({}));
@@ -754,56 +693,64 @@ async function api(url, options = {}) {
   }
 }
 
-/* ── login (unchanged) ── */
+/* ── login ── */
 $("loginForm").onsubmit = async (e) => {
   e.preventDefault();
   const { res, data } = await api("/login", {
     method: "POST",
-    body: JSON.stringify({ username: $("username").value, password: $("password").value, role: $("role").value, adminCode: $("adminCode").value })
+    body: JSON.stringify({
+      username: $("username").value,
+      password: $("password").value,
+      role: $("role").value,
+      adminCode: $("adminCode").value
+    })
   });
-  if (!res.ok) { $("error").innerText = data.error || "Login failed"; return; }
+  if (!res.ok) {
+    $("error").innerText = data.error || "Login failed";
+    return;
+  }
   localStorage.setItem("token", data.token);
   $("error").innerText = "";
   loadDashboard();
 };
 
-/* ── dashboard (unchanged logic) ── */
+/* ── dashboard ── */
 async function loadDashboard() {
   const auth = await api("/isAuth");
   if (!auth.res.ok) { logout(false); return; }
+
   const { res, data } = await api("/dashboard");
-  if (!res.ok) { alert(data.error || "Error loading dashboard"); return; }
+  if (!res.ok) { alert(data.error); return; }
 
   $("loginDiv").classList.add("hidden");
   $("dashboardDiv").classList.remove("hidden");
-  $("sidebarName").textContent = data.username || "—";
-  $("sidebarAvatar").textContent = (data.username || "U")[0].toUpperCase();
-  CURRENT_ROLE = data.role;
-  showSidebarForRole(data.role);
-  $("topbarSub").innerText = "Welcome back, " + (data.username || "—");
 
-  // hide all views first
+  // set sidebar info
+  $("sidebarName").innerText = data.username || "User";
+  $("sidebarRole").innerText = (data.role || "").toUpperCase();
+  $("sidebarAvatar").innerText = (data.username || "U").charAt(0).toUpperCase();
+
+  const d = new Date();
+  $("topbarSub").innerText = d.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+
+  // Hide all navs & reset
+  $("navCustomer").style.display = "none";
+  $("navStaff").style.display = "none";
+  $("navAdmin").style.display = "none";
   document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
 
   if (data.role === "customer") {
-    $("roleTitle").innerText = "My Profile";
-    $("profile").style.display = "none";
+    $("navCustomer").style.display = "block";
+    $("roleTitle").innerText = "Customer Portal";
 
-    // build profile display
     const p = data.profile || {};
-    $("profileDisplay").innerHTML = `
-      <div class="profile-field"><span class="pf-label">Member ID</span><span class="pf-value">${p.MemberID || "—"}</span></div>
-      <div class="profile-field"><span class="pf-label">Name</span><span class="pf-value">${p.Name || "—"}</span></div>
-      <div class="profile-field"><span class="pf-label">Email</span><span class="pf-value">${p.Email || "—"}</span></div>
-      <div class="profile-field"><span class="pf-label">Phone</span><span class="pf-value">${p.PhoneNumber || "—"}</span></div>
-      <div class="profile-field"><span class="pf-label">Age</span><span class="pf-value">${p.Age || "—"}</span></div>
-      <div class="profile-field"><span class="pf-label">Address</span><span class="pf-value">${p.Address || "—"}</span></div>
-    `;
-    $("profileName").value    = p.Name || "";
-    $("profileEmail").value   = p.Email || "";
-    $("profilePhone").value   = p.PhoneNumber || "";
-    $("profileAddress").value = p.Address || "";
-    $("profileAge").value     = p.Age || "";
+    $("dispName").innerText = p.Name || "—";
+    $("dispEmail").innerText = p.Email || "—";
+    $("dispPhone").innerText = p.PhoneNumber || "—";
+    $("dispAddress").innerText = p.Address || "—";
+    
+    $("profileName").value = p.Name || "";
+    $("profileEmail").value = p.Email || "";
 
     $("view-cust-profile").classList.add('active');
 
@@ -816,18 +763,20 @@ async function loadDashboard() {
         <td>${o.DeliveryDate || "—"} ${o.DeliveryTime || ""}</td>
       </tr>`;
     });
-    if (!data.orders || data.orders.length === 0)
+    if (!data.orders || data.orders.length === 0) 
       $("customerTable").innerHTML = `<tr class="empty-row"><td colspan="6">No orders yet</td></tr>`;
   }
 
   if (data.role === "staff") {
+    $("navStaff").style.display = "block";
     $("roleTitle").innerText = "Assigned Tasks";
+
     const p = data.profile || {};
     $("profile").innerHTML = `<strong>Name:</strong> ${p.Name || "—"} &nbsp; <strong>Role:</strong> ${p.Role || "—"} &nbsp; <strong>Contact:</strong> ${p.ContactNumber || "—"}`;
     $("profile").style.display = "block";
+
     $("view-staff-tasks").classList.add('active');
 
-    // merge pickups + deliveries into one tasks table
     let taskHtml = "";
     (data.pickups || []).forEach(p => {
       taskHtml += `<tr>
@@ -851,14 +800,18 @@ async function loadDashboard() {
   }
 
   if (data.role === "admin") {
+    $("navAdmin").style.display = "block";
     $("roleTitle").innerText = "Orders";
+
     $("profile").innerHTML = `<strong>Username:</strong> ${data.username || "—"} &nbsp;&nbsp; <strong>Role:</strong> Administrator`;
     $("profile").style.display = "block";
+    
     $("view-admin-orders").classList.add('active');
 
-    ALL_ORDERS    = data.orders || [];
+    ALL_ORDERS = data.orders || [];
     ALL_CUSTOMERS = data.customers || [];
-    ALL_STAFF     = data.staffMembers || [];
+    ALL_STAFF = data.staffMembers || [];
+    
     renderOrders();
     renderCustomers();
     renderStaff();
@@ -866,146 +819,151 @@ async function loadDashboard() {
 }
 
 /* ── ORDERS ── */
+/* ── ORDERS ── */
 function renderOrders() {
   const search = $("orderSearch").value.toLowerCase();
-  const filter = $("orderFilter").value;
+  
+  // Grab the values from BOTH dropdowns
+  const statusFilter = $("orderFilter").value;
+  const deliveryFilter = $("deliveryFilter").value;
+  
   let html = "";
+  
   ALL_ORDERS.forEach(o => {
-    if (search && !String(o.OrderID).includes(search) && !String(o.CustomerName || "").toLowerCase().includes(search)) return;
-    if (filter && o.OrderStatus !== filter) return;
-    const statusClass = { Pending:'pill-pending', Processing:'pill-processing', Completed:'pill-completed', Delivered:'pill-delivered' }[o.OrderStatus] || 'pill-pending';
+    // 1. Search text filter
+    if (search && !String(o.OrderID).toLowerCase().includes(search) && !String(o.CustomerName || "").toLowerCase().includes(search)) return;
+    
+    // 2. Order Status filter
+    if (statusFilter && o.OrderStatus !== statusFilter) return;
+
+    // 3. Delivery Status filter
+    if (deliveryFilter && o.DeliveryStatus !== deliveryFilter) return;
+
+    const statusClass = {
+      Pending:'pill-pending', Processing:'pill-processing', 
+      Completed:'pill-completed', Delivered:'pill-delivered'
+    }[o.OrderStatus] || 'pill-pending';
+
     html += `<tr>
-      <td>#${o.OrderID}</td><td>${o.CustomerName || "—"}</td>
+      <td><strong>${o.OrderID}</strong></td>
+      <td>${o.CustomerName || "Unknown"}</td>
       <td><span class="status-pill ${statusClass}">${o.OrderStatus}</span></td>
-      <td>${o.Quantity}</td><td>${o.DeliveryStatus || "—"}</td>
+      <td class="td-muted">${o.Quantity}</td>
+      <td class="td-muted">${o.DeliveryStatus || "—"}</td>
       <td>
-        <button class="btn btn-secondary btn-sm" onclick="editOrder(${o.OrderID})">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteOrder(${o.OrderID})">Delete</button>
+        <button class="btn btn-secondary btn-sm" onclick="alert('Order detail mock')">View</button>
       </td>
     </tr>`;
   });
+
   $("orderTable").innerHTML = html || `<tr class="empty-row"><td colspan="6">No orders found</td></tr>`;
 }
 
-$("orderSearch").addEventListener("input", renderOrders);
-$("orderFilter").addEventListener("change", renderOrders);
-
-async function submitOrderForm() {
-  const id = $("orderId").value;
-  const payload = { memberId: $("memberId").value, quantity: $("quantity").value, orderStatus: $("orderStatus").value, deliveryStatus: $("deliveryStatus").value };
-  const { res, data } = await api(id ? `/orders/${id}` : "/orders", { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
-  if (!res.ok) { alert(data.error || "Error saving order"); return; }
-  closeModal('order'); resetOrderForm(); loadDashboard();
-}
-
-// keep original form submit working too
-const orderFormEl = document.getElementById('orderForm');
-if (orderFormEl) orderFormEl.onsubmit = async (e) => { e.preventDefault(); await submitOrderForm(); };
-
-function editOrder(id) {
-  const o = ALL_ORDERS.find(x => String(x.OrderID) === String(id));
-  if (!o) return;
-  $("orderId").value = o.OrderID; $("memberId").value = o.MemberID || "";
-  $("quantity").value = o.Quantity || ""; $("orderStatus").value = o.OrderStatus || "";
-  $("deliveryStatus").value = o.DeliveryStatus || "";
-  $("orderModalTitle").innerText = "Edit Order #" + o.OrderID;
-  $("orderSaveBtn").innerText = "Update Order";
-  openModal('order');
-}
-
-function resetOrderForm() {
-  $("orderId").value = ""; $("memberId").value = ""; $("quantity").value = "";
-  $("orderStatus").value = ""; $("deliveryStatus").value = "";
-  $("orderModalTitle").innerText = "Add Order";
-  $("orderSaveBtn").innerText = "Save Order";
-}
-
-async function deleteOrder(id) {
-  if (!confirm("Delete order? This will be logged.")) return;
-  const { res, data } = await api(`/orders/${id}`, { method: "DELETE" });
-  if (!res.ok) { alert(data.error || "Delete failed"); return; }
-  loadDashboard();
-}
-
+// Event listeners to trigger the function when you type or change a dropdown
+$("orderSearch").oninput = renderOrders;
+$("orderFilter").onchange = renderOrders;
+$("deliveryFilter").onchange = renderOrders; // <-- This makes the new dropdown work!
 /* ── CUSTOMERS ── */
 function renderCustomers() {
   const search = $("customerSearch").value.toLowerCase();
   let html = "";
+  
   ALL_CUSTOMERS.forEach(c => {
-    if (search && !String(c.MemberID).includes(search) && !String(c.Name || "").toLowerCase().includes(search) && !String(c.Username || "").toLowerCase().includes(search)) return;
+    if (search && !String(c.MemberID).toLowerCase().includes(search) && 
+        !String(c.Name || "").toLowerCase().includes(search) &&
+        !String(c.Username || "").toLowerCase().includes(search)) return;
+
     html += `<tr>
-      <td>${c.MemberID}</td><td>${c.Name || "—"}</td><td class="td-muted">${c.Email || "—"}</td>
-      <td>${c.PhoneNumber || "—"}</td><td class="td-muted">${c.Address || "—"}</td>
-      <td>${c.Age ?? "—"}</td><td>${c.UserID ?? "—"}</td><td>${c.Username || "—"}</td>
+      <td><strong>${c.MemberID}</strong></td>
+      <td>${c.Name}</td>
+      <td class="td-muted">${c.Email || "—"}</td>
+      <td class="td-muted">${c.PhoneNumber || "—"}</td>
+      <td class="td-muted">${c.Address || "—"}</td>
+      <td class="td-muted">${c.Age || "—"}</td>
+      <td class="td-muted">${c.Username || "—"}</td>
       <td>
-        <button class="btn btn-secondary btn-sm" onclick="editCustomer(${c.MemberID})">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${c.MemberID})">Delete</button>
+        <button class="btn btn-secondary btn-sm" onclick="editCustomer('${c.MemberID}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c.MemberID}')">Del</button>
       </td>
     </tr>`;
   });
   $("customerTableAdmin").innerHTML = html || `<tr class="empty-row"><td colspan="9">No customers found</td></tr>`;
 }
 
-$("customerSearch").addEventListener("input", renderCustomers);
+$("customerSearch").oninput = renderCustomers;
 
+// FIX: Updated logic to include Username and Password correctly
 async function submitCustomerForm() {
   const editingId = $("customerEditingId").value;
-
+  
   const payload = {
-    memberId: parseInt($("c_memberId").value, 10),
+    memberId: $("c_memberId").value,
     name: $("c_name").value,
     email: $("c_email").value,
     phoneNumber: $("c_phone").value,
     address: $("c_address").value,
-    age: parseInt($("c_age").value, 10) || null,
-    userId: parseInt($("c_userId").value, 10)
-    };
+    age: $("c_age").value,
+    username: $("c_username").value,
+    password: $("c_password").value
+  };
 
-  // Optional front-end validation
-  if (!payload.MemberID || !payload.UserID) {
-    alert("MemberID and UserID are required");
-    return;
-  }
+  const method = editingId ? "PUT" : "POST";
+  const url = editingId ? `/customers/${editingId}` : "/customers";
 
-  const { res, data } = await api(
-    editingId ? `/customers/${editingId}` : "/customers",
-    {
-      method: editingId ? "PUT" : "POST",
-      body: JSON.stringify(payload)
-    }
-  );
+  const { res, data } = await api(url, {
+    method,
+    body: JSON.stringify(payload)
+  });
 
   if (!res.ok) {
-    alert(data.error || "Error saving customer");
+    alert(data.error || "Failed to save customer");
     return;
   }
-
-  alert("Customer saved successfully!");
+  
   closeModal('customer');
-  resetCustomerForm();
   loadDashboard();
 }
-
-const customerFormEl = document.getElementById('customerForm');
-if (customerFormEl) customerFormEl.onsubmit = async (e) => { e.preventDefault(); await submitCustomerForm(); };
 
 function editCustomer(memberId) {
   const c = ALL_CUSTOMERS.find(x => String(x.MemberID) === String(memberId));
   if (!c) return;
-  $("customerEditingId").value = c.MemberID; $("c_memberId").value = c.MemberID || ""; $("c_memberId").readOnly = true;
-  $("c_name").value = c.Name || ""; $("c_email").value = c.Email || ""; $("c_phone").value = c.PhoneNumber || "";
-  $("c_address").value = c.Address || ""; $("c_age").value = c.Age ?? ""; $("c_userId").value = c.UserID ?? "";
-  $("c_userId").disabled = true;
-  $("customerModalTitle").innerText = "Edit Customer";
+  
+  $("customerEditingId").value = c.MemberID;
+  $("c_memberId").value = c.MemberID;
+  $("c_memberId").readOnly = true;
+  $("c_name").value = c.Name || "";
+  $("c_email").value = c.Email || "";
+  $("c_phone").value = c.PhoneNumber || "";
+  $("c_address").value = c.Address || "";
+  $("c_age").value = c.Age || "";
+  
+  // Disable username/password for edits as per standard backend flow
+  $("c_username").value = "Cannot edit";
+  $("c_password").value = "******";
+  $("c_username").disabled = true;
+  $("c_password").disabled = true;
+  
+  $("customerModalTitle").innerText = "Update Customer";
   $("customerSaveBtn").innerText = "Update Customer";
   openModal('customer');
 }
 
 function resetCustomerForm() {
-  $("customerEditingId").value = ""; $("c_memberId").value = ""; $("c_memberId").readOnly = false;
-  $("c_name").value = ""; $("c_email").value = ""; $("c_phone").value = "";
-  $("c_address").value = ""; $("c_age").value = ""; $("c_userId").value = "";
-  $("c_userId").disabled = false;
+  $("customerEditingId").value = "";
+  $("c_memberId").value = "";
+  $("c_memberId").readOnly = false;
+  $("c_name").value = "";
+  $("c_email").value = "";
+  $("c_phone").value = "";
+  $("c_address").value = "";
+  $("c_age").value = "";
+  
+  // Reset and enable credentials
+  $("c_username").value = "";
+  $("c_password").value = "";
+  $("c_username").disabled = false;
+  $("c_password").disabled = false;
+  
   $("customerModalTitle").innerText = "Add Customer";
   $("customerSaveBtn").innerText = "Add Customer";
 }
@@ -1017,71 +975,81 @@ async function deleteCustomer(memberId) {
   loadDashboard();
 }
 
+
 /* ── STAFF ── */
 function renderStaff() {
   const search = $("staffSearch").value.toLowerCase();
   let html = "";
+  
   ALL_STAFF.forEach(s => {
-    if (search && !String(s.StaffID).includes(search) && !String(s.Name || "").toLowerCase().includes(search) && !String(s.Username || "").toLowerCase().includes(search)) return;
+    if (search && !String(s.StaffID).toLowerCase().includes(search) && 
+        !String(s.Name || "").toLowerCase().includes(search) &&
+        !String(s.Role || "").toLowerCase().includes(search)) return;
+
     html += `<tr>
-      <td>${s.StaffID}</td><td>${s.Name || "—"}</td><td>${s.Role || "—"}</td>
-      <td>${s.ContactNumber || "—"}</td><td>${s.UserID ?? "—"}</td><td>${s.Username || "—"}</td>
+      <td><strong>${s.StaffID}</strong></td>
+      <td>${s.Name}</td>
+      <td class="td-muted">${s.Role || "—"}</td>
+      <td class="td-muted">${s.ContactNumber || "—"}</td>
       <td>
-        <button class="btn btn-secondary btn-sm" onclick="editStaff(${s.StaffID})">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteStaff(${s.StaffID})">Delete</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStaff('${s.StaffID}')">Del</button>
       </td>
     </tr>`;
   });
-  $("staffTableAdmin").innerHTML = html || `<tr class="empty-row"><td colspan="7">No staff found</td></tr>`;
+  $("staffTableAdmin").innerHTML = html || `<tr class="empty-row"><td colspan="5">No staff found</td></tr>`;
 }
 
-$("staffSearch").addEventListener("input", renderStaff);
+$("staffSearch").oninput = renderStaff;
 
 async function submitStaffForm() {
-  const editingId = $("staffEditingId").value;
-  const payload = { staffId: $("s_staffId").value, name: $("s_name").value, role: $("s_role").value, contactNumber: $("s_contact").value, userId: $("s_userId").value };
-  const { res, data } = await api(editingId ? `/staff/${editingId}` : "/staff", { method: editingId ? "PUT" : "POST", body: JSON.stringify(payload) });
-  if (!res.ok) { alert(data.error || "Error saving staff"); return; }
-  closeModal('staff'); resetStaffForm(); loadDashboard();
-}
+  const payload = {
+    staffId: $("s_staffId").value,
+    name: $("s_name").value,
+    role: $("s_role").value,
+    contact: $("s_contact").value,
+    username: $("s_username").value,
+    password: $("s_password").value
+  };
 
-const staffFormEl = document.getElementById('staffForm');
-if (staffFormEl) staffFormEl.onsubmit = async (e) => { e.preventDefault(); await submitStaffForm(); };
+  const { res, data } = await api("/staff", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
 
-function editStaff(staffId) {
-  const s = ALL_STAFF.find(x => String(x.StaffID) === String(staffId));
-  if (!s) return;
-  $("staffEditingId").value = s.StaffID; $("s_staffId").value = s.StaffID || ""; $("s_staffId").readOnly = true;
-  $("s_name").value = s.Name || ""; $("s_role").value = s.Role || ""; $("s_contact").value = s.ContactNumber || "";
-  $("s_userId").value = s.UserID ?? ""; $("s_userId").disabled = true;
-  $("staffModalTitle").innerText = "Edit Staff";
-  $("staffSaveBtn").innerText = "Update Staff";
-  openModal('staff');
+  if (!res.ok) { alert(data.error || "Failed to save staff"); return; }
+  
+  closeModal('staff');
+  loadDashboard();
 }
 
 function resetStaffForm() {
-  $("staffEditingId").value = ""; $("s_staffId").value = ""; $("s_staffId").readOnly = false;
-  $("s_name").value = ""; $("s_role").value = ""; $("s_contact").value = "";
-  $("s_userId").value = ""; $("s_userId").disabled = false;
+  $("staffEditingId").value = "";
+  $("s_staffId").value = "";
+  $("s_name").value = "";
+  $("s_role").value = "";
+  $("s_contact").value = "";
+  $("s_username").value = "";
+  $("s_password").value = "";
   $("staffModalTitle").innerText = "Add Staff";
   $("staffSaveBtn").innerText = "Add Staff";
 }
 
 async function deleteStaff(staffId) {
-  if (!confirm("Delete staff? This may also delete the linked login if safe.")) return;
+  if (!confirm("Delete staff?")) return;
   const { res, data } = await api(`/staff/${staffId}`, { method: "DELETE" });
   if (!res.ok) { alert(data.error || "Delete failed"); return; }
   loadDashboard();
 }
 
-/* ── LOGS (unchanged) ── */
-async function loadLogs() {
+
+/* ── LOGS ── */
+async function fetchLogs() {
   const { res, data } = await api("/logs");
   if (!res.ok) return;
   $("logBox").value = data.logs || "";
 }
 
-/* ── PROFILE UPDATE (unchanged) ── */
+/* ── PROFILE UPDATE ── */
 $("profileForm").onsubmit = async (e) => {
   e.preventDefault();
 
@@ -1101,37 +1069,40 @@ $("profileForm").onsubmit = async (e) => {
   }
 
   // Update profile card
-  $("profile").innerHTML = `<b>${payload.name}</b><br>${payload.email}`;
+  $("dispName").innerText = payload.name;
+  $("dispEmail").innerText = payload.email;
 
   // Show success message inside form
   let msg = $("profileForm").querySelector(".successMsg");
   if (!msg) {
     msg = document.createElement("div");
     msg.className = "successMsg";
-    msg.style.color = "green";
+    msg.style.color = "var(--accent)";
     msg.style.marginTop = "10px";
+    msg.style.fontSize = "12px";
     $("profileForm").appendChild(msg);
   }
   msg.innerText = "Profile updated successfully!";
 
-  // Optional: disable inputs
-  $("profileName").disabled = true;
-  $("profileEmail").disabled = true;
-
-  // Hide the save button
-  $("profileForm").querySelector("button[type='submit']").style.display = "none";
+  setTimeout(() => { toggleProfileEdit(); msg.remove(); }, 1500);
 };
 
-/* ── LOGOUT (unchanged) ── */
-function logout(clear = true) {
-  if (clear) localStorage.removeItem("token");
-  location.reload();
+/* ── LOGOUT ── */
+function logout(callApi = true) {
+  localStorage.removeItem("token");
+  $("loginDiv").classList.remove("hidden");
+  $("dashboardDiv").classList.add("hidden");
+  $("username").value = "";
+  $("password").value = "";
 }
 
-/* ── AUTO LOGIN (unchanged) ── */
-if (localStorage.getItem("token")) { loadDashboard(); }
-
-
+// Auto-login check on page load
+window.onload = () => {
+  if (localStorage.getItem("token")) {
+    loadDashboard();
+  }
+};
 </script>
+
 </body>
 </html>
