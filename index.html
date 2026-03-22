@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Laundry Dashboard</title>
+
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
+  .hidden { display: none; }
+  .card { background: white; padding: 16px; border-radius: 8px; margin-top: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
+  th { background: #eee; }
+  button { padding: 8px 12px; margin: 4px; cursor: pointer; }
+  input, select, textarea { padding: 8px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+  .danger { background: red; color: white; }
+  .primary { background: blue; color: white; }
+  .secondary { background: #666; color: white; }
+  .note { background: #fff8dc; padding: 10px; border-left: 4px solid #d4b106; margin-top: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 900px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Laundry Management</h1>
+
+<!-- LOGIN -->
+<div id="loginDiv" class="card">
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input id="username" placeholder="Username" required />
+    <input id="password" type="password" placeholder="Password" required />
+
+    <select id="role">
+      <option value="customer">Customer</option>
+      <option value="staff">Staff</option>
+      <option value="admin">Admin</option>
+    </select>
+
+    <div id="adminBox" class="hidden">
+      <input id="adminCode" placeholder="Admin Code" />
+    </div>
+
+    <button type="submit" class="primary">Login</button>
+  </form>
+
+  <div id="error" style="color:red;"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardDiv" class="hidden">
+  <button onclick="logout()" class="secondary">Logout</button>
+  <h2 id="roleTitle"></h2>
+
+  <div id="profile" class="card"></div>
+
+  <!-- CUSTOMER -->
+  <div id="customerSection" class="hidden card">
+    <h3>Customer Portal</h3>
+
+    <div class="note">
+      This profile form updates only the Customer table, not the Users table.
+    </div>
+
+    <h4>Update Profile</h4>
+    <form id="profileForm">
+      <input id="profileName" placeholder="Name" />
+      <input id="profileEmail" placeholder="Email" />
+      <input id="profilePhone" placeholder="Phone Number" />
+      <input id="profileAddress" placeholder="Address" />
+      <input id="profileAge" placeholder="Age" />
+      <button type="submit" class="primary">Save Profile</button>
+    </form>
+
+    <h4>Your Orders</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Qty</th>
+          <th>Delivery</th>
+          <th>Pickup</th>
+          <th>Delivery Date</th>
+        </tr>
+      </thead>
+      <tbody id="customerTable"></tbody>
+    </table>
+  </div>
+
+  <!-- STAFF -->
+  <div id="staffSection" class="hidden card">
+    <h3>Staff Portal</h3>
+
+    <h4>Your Pickups</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="pickupTable"></tbody>
+    </table>
+
+    <h4>Your Deliveries</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="deliveryTable"></tbody>
+    </table>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="adminSection" class="hidden card">
+    <h3>🛠 Admin Control Panel</h3>
+
+    <div class="note">
+      Delete actions are protected. Customer deletion is blocked if that customer still has orders.
+      Staff deletion is blocked if they still have pickup/delivery assignments.
+    </div>
+
+    <div class="grid2">
+      <!-- ORDER -->
+      <div class="card">
+        <h4>Create / Update Order</h4>
+        <form id="orderForm">
+          <input type="hidden" id="orderId" />
+          <input id="memberId" placeholder="Member ID" />
+          <input id="quantity" placeholder="Quantity" />
+          <input id="orderStatus" placeholder="Order Status" />
+          <input id="deliveryStatus" placeholder="Delivery Status" />
+
+          <button id="orderSaveBtn" type="submit" class="primary">Save Order</button>
+          <button type="button" onclick="resetOrderForm()" class="secondary">Reset</button>
+        </form>
+
+        <h4>Search & Filter Orders</h4>
+        <input id="orderSearch" placeholder="Search by Order ID / Customer" />
+        <select id="orderFilter">
+          <option value="">All Status</option>
+          <option>Processing</option>
+          <option>Completed</option>
+          <option>Pending</option>
+          <option>Delivered</option>
+        </select>
+
+        <h4>All Orders</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Qty</th>
+              <th>Delivery</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orderTable"></tbody>
+        </table>
+      </div>
+
+      <!-- CUSTOMER -->
+      <div class="card">
+        <h4>Create / Update Customer</h4>
+        <form id="customerForm">
+          <input type="hidden" id="customerEditingId" />
+          <input id="c_memberId" placeholder="Member ID" required />
+          <input id="c_name" placeholder="Name" required />
+          <input id="c_email" placeholder="Email" />
+          <input id="c_phone" placeholder="Phone Number" />
+          <input id="c_address" placeholder="Address" />
+          <input id="c_age" placeholder="Age" />
+          <input id="c_userId" placeholder="User ID" required />
+          <button id="customerSaveBtn" type="submit" class="primary">Add Customer</button>
+          <button type="button" onclick="resetCustomerForm()" class="secondary">Reset</button>
+        </form>
+
+        <h4>Search Customers</h4>
+        <input id="customerSearch" placeholder="Search by ID / Name / Username" />
+
+        <h4>All Customers</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Member ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Age</th>
+              <th>User ID</th>
+              <th>Username</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="customerTableAdmin"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4>Create / Update Staff</h4>
+      <form id="staffForm">
+        <input type="hidden" id="staffEditingId" />
+        <input id="s_staffId" placeholder="Staff ID" required />
+        <input id="s_name" placeholder="Name" required />
+        <input id="s_role" placeholder="Role" />
+        <input id="s_contact" placeholder="Contact Number" />
+        <input id="s_userId" placeholder="User ID" required />
+        <button id="staffSaveBtn" type="submit" class="primary">Add Staff</button>
+        <button type="button" onclick="resetStaffForm()" class="secondary">Reset</button>
+      </form>
+
+      <h4>Search Staff</h4>
+      <input id="staffSearch" placeholder="Search by ID / Name / Username" />
+
+      <h4>All Staff</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Staff ID</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Contact</th>
+            <th>User ID</th>
+            <th>Username</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="staffTableAdmin"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4>Local Audit Log</h4>
+      <button type="button" onclick="loadLogs()" class="secondary">Refresh Logs</button>
+      <textarea id="logBox" rows="10" readonly style="width:100%;"></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE_URL = "http://localhost:5000";
+const $ = (id) => document.getElementById(id);
+
+let ALL_ORDERS = [];
+let ALL_CUSTOMERS = [];
+let ALL_STAFF = [];
+
+// toggle admin box
+$("role").addEventListener("change", () => {
+  $("adminBox").classList.toggle("hidden", $("role").value !== "admin");
+});
+
+// api helper
+async function api(url, options = {}) {
+  const token = localStorage.getItem("token");
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  if (token) headers.Authorization = "Bearer " + token;
+
+  try {
+    const res = await fetch(BASE_URL + url, {
+      ...options,
+      headers
+    });
+
+    const data = await res.json().catch(() => ({}));
+    return { res, data };
+  } catch {
+    alert("Server not reachable");
+    return { res: { ok: false }, data: {} };
+  }
+}
+
+// login
+$("loginForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const { res, data } = await api("/login", {
+    method: "POST",
+    body: JSON.stringify({
+      username: $("username").value,
+      password: $("password").value,
+      role: $("role").value,
+      adminCode: $("adminCode").value
+    })
+  });
+
+  if (!res.ok) {
+    $("error").innerText = data.error || "Login failed";
+    return;
+  }
+
+  localStorage.setItem("token", data.token);
+  $("error").innerText = "";
+  loadDashboard();
+};
+
+// dashboard
+async function loadDashboard() {
+  const auth = await api("/isAuth");
+  if (!auth.res.ok) {
+    logout(false);
+    return;
+  }
+
+  const { res, data } = await api("/dashboard");
+  if (!res.ok) {
+    alert(data.error || "Error loading dashboard");
+    return;
+  }
+
+  $("loginDiv").classList.add("hidden");
+  $("dashboardDiv").classList.remove("hidden");
+
+  $("roleTitle").innerText = "Dashboard (" + data.role + ")";
+
+  $("customerSection").classList.add("hidden");
+  $("staffSection").classList.add("hidden");
+  $("adminSection").classList.add("hidden");
+
+  if (data.role === "customer") {
+    $("customerSection").classList.remove("hidden");
+    $("profile").innerHTML = `
+      <strong>Username:</strong> ${data.username || "-"}<br>
+      <strong>Role:</strong> ${data.role}<br>
+      <strong>Member ID:</strong> ${data.profile?.MemberID || "-"}<br>
+      <strong>Name:</strong> ${data.profile?.Name || "-"}<br>
+      <strong>Email:</strong> ${data.profile?.Email || "-"}<br>
+      <strong>Phone:</strong> ${data.profile?.PhoneNumber || "-"}<br>
+      <strong>Address:</strong> ${data.profile?.Address || "-"}<br>
+      <strong>Age:</strong> ${data.profile?.Age || "-"}
+    `;
+
+    $("profileName").value = data.profile?.Name || "";
+    $("profileEmail").value = data.profile?.Email || "";
+    $("profilePhone").value = data.profile?.PhoneNumber || "";
+    $("profileAddress").value = data.profile?.Address || "";
+    $("profileAge").value = data.profile?.Age || "";
+
+    $("customerTable").innerHTML = "";
+    (data.orders || []).forEach(o => {
+      $("customerTable").innerHTML += `
+        <tr>
+          <td>${o.OrderID}</td>
+          <td>${o.OrderStatus}</td>
+          <td>${o.Quantity}</td>
+          <td>${o.DeliveryStatus || "-"}</td>
+          <td>${o.PickupDate || "-"} ${o.PickupTime || ""}</td>
+          <td>${o.DeliveryDate || "-"} ${o.DeliveryTime || ""}</td>
+        </tr>`;
+    });
+  }
+
+  if (data.role === "staff") {
+    $("staffSection").classList.remove("hidden");
+    $("profile").innerHTML = `
+      <strong>Username:</strong> ${data.username || "-"}<br>
+      <strong>Role:</strong> ${data.role}<br>
+      <strong>Staff ID:</strong> ${data.profile?.StaffID || "-"}<br>
+      <strong>Name:</strong> ${data.profile?.Name || "-"}<br>
+      <strong>Staff Role:</strong> ${data.profile?.Role || "-"}<br>
+      <strong>Contact:</strong> ${data.profile?.ContactNumber || "-"}
+    `;
+
+    $("pickupTable").innerHTML = "";
+    if (!data.pickups || data.pickups.length === 0) {
+      $("pickupTable").innerHTML = `<tr><td colspan="4">No pickups</td></tr>`;
+    } else {
+      data.pickups.forEach(p => {
+        $("pickupTable").innerHTML += `
+          <tr>
+            <td>${p.OrderID}</td>
+            <td>${p.CustomerName || "-"}</td>
+            <td>${p.PickupDate || "-"}</td>
+            <td>${p.PickupTime || "-"}</td>
+          </tr>`;
+      });
+    }
+
+    $("deliveryTable").innerHTML = "";
+    if (!data.deliveries || data.deliveries.length === 0) {
+      $("deliveryTable").innerHTML = `<tr><td colspan="4">No deliveries</td></tr>`;
+    } else {
+      data.deliveries.forEach(d => {
+        $("deliveryTable").innerHTML += `
+          <tr>
+            <td>${d.OrderID}</td>
+            <td>${d.CustomerName || "-"}</td>
+            <td>${d.DeliveryDate || "-"}</td>
+            <td>${d.DeliveryTime || "-"}</td>
+          </tr>`;
+      });
+    }
+  }
+
+  if (data.role === "admin") {
+    $("adminSection").classList.remove("hidden");
+    $("profile").innerHTML = `
+      <strong>Username:</strong> ${data.username || "-"}<br>
+      <strong>Role:</strong> admin
+    `;
+
+    ALL_ORDERS = data.orders || [];
+    ALL_CUSTOMERS = data.customers || [];
+    ALL_STAFF = data.staffMembers || [];
+
+    renderOrders();
+    renderCustomers();
+    renderStaff();
+    await loadLogs();
+  }
+}
+
+// ---------------- ORDERS ----------------
+function renderOrders() {
+  const search = $("orderSearch").value.toLowerCase();
+  const filter = $("orderFilter").value;
+  let html = "";
+
+  ALL_ORDERS.forEach(o => {
+    if (
+      search &&
+      !String(o.OrderID).includes(search) &&
+      !String(o.CustomerName || "").toLowerCase().includes(search)
+    ) return;
+
+    if (filter && o.OrderStatus !== filter) return;
+
+    html += `
+      <tr>
+        <td>${o.OrderID}</td>
+        <td>${o.CustomerName || "-"}</td>
+        <td>${o.OrderStatus}</td>
+        <td>${o.Quantity}</td>
+        <td>${o.DeliveryStatus || "-"}</td>
+        <td>
+          <button onclick="editOrder(${o.OrderID})">Edit</button>
+          <button class="danger" onclick="deleteOrder(${o.OrderID})">Delete</button>
+        </td>
+      </tr>`;
+  });
+
+  $("orderTable").innerHTML = html || `<tr><td colspan="6">No orders found</td></tr>`;
+}
+
+$("orderSearch").addEventListener("input", renderOrders);
+$("orderFilter").addEventListener("change", renderOrders);
+
+$("orderForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const id = $("orderId").value;
+
+  const payload = {
+    memberId: $("memberId").value,
+    quantity: $("quantity").value,
+    orderStatus: $("orderStatus").value,
+    deliveryStatus: $("deliveryStatus").value
+  };
+
+  const { res, data } = await api(id ? `/orders/${id}` : "/orders", {
+    method: id ? "PUT" : "POST",
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    alert(data.error || "Error saving order");
+    return;
+  }
+
+  resetOrderForm();
+  loadDashboard();
+};
+
+function editOrder(id) {
+  const o = ALL_ORDERS.find(x => String(x.OrderID) === String(id));
+  if (!o) return;
+
+  $("orderId").value = o.OrderID;
+  $("memberId").value = o.MemberID || "";
+  $("quantity").value = o.Quantity || "";
+  $("orderStatus").value = o.OrderStatus || "";
+  $("deliveryStatus").value = o.DeliveryStatus || "";
+  $("orderSaveBtn").innerText = "Update Order";
+}
+
+function resetOrderForm() {
+  $("orderId").value = "";
+  $("memberId").value = "";
+  $("quantity").value = "";
+  $("orderStatus").value = "";
+  $("deliveryStatus").value = "";
+  $("orderSaveBtn").innerText = "Save Order";
+}
+
+async function deleteOrder(id) {
+  if (!confirm("Delete order? This will be logged.")) return;
+
+  const { res, data } = await api(`/orders/${id}`, { method: "DELETE" });
+
+  if (!res.ok) {
+    alert(data.error || "Delete failed");
+    return;
+  }
+
+  loadDashboard();
+}
+
+// ---------------- CUSTOMERS ----------------
+function renderCustomers() {
+  const search = $("customerSearch").value.toLowerCase();
+  let html = "";
+
+  ALL_CUSTOMERS.forEach(c => {
+    if (
+      search &&
+      !String(c.MemberID).includes(search) &&
+      !String(c.Name || "").toLowerCase().includes(search) &&
+      !String(c.Username || "").toLowerCase().includes(search)
+    ) return;
+
+    html += `
+      <tr>
+        <td>${c.MemberID}</td>
+        <td>${c.Name || "-"}</td>
+        <td>${c.Email || "-"}</td>
+        <td>${c.PhoneNumber || "-"}</td>
+        <td>${c.Address || "-"}</td>
+        <td>${c.Age ?? "-"}</td>
+        <td>${c.UserID ?? "-"}</td>
+        <td>${c.Username || "-"}</td>
+        <td>
+          <button onclick="editCustomer(${c.MemberID})">Edit</button>
+          <button class="danger" onclick="deleteCustomer(${c.MemberID})">Delete</button>
+        </td>
+      </tr>`;
+  });
+
+  $("customerTableAdmin").innerHTML = html || `<tr><td colspan="9">No customers found</td></tr>`;
+}
+
+$("customerSearch").addEventListener("input", renderCustomers);
+
+$("customerForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const editingId = $("customerEditingId").value;
+  const payload = {
+    memberId: $("c_memberId").value,
+    name: $("c_name").value,
+    email: $("c_email").value,
+    phoneNumber: $("c_phone").value,
+    address: $("c_address").value,
+    age: $("c_age").value,
+    userId: $("c_userId").value
+  };
+
+  const { res, data } = await api(editingId ? `/customers/${editingId}` : "/customers", {
+    method: editingId ? "PUT" : "POST",
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    alert(data.error || "Error saving customer");
+    return;
+  }
+
+  resetCustomerForm();
+  loadDashboard();
+};
+
+function editCustomer(memberId) {
+  const c = ALL_CUSTOMERS.find(x => String(x.MemberID) === String(memberId));
+  if (!c) return;
+
+  $("customerEditingId").value = c.MemberID;
+  $("c_memberId").value = c.MemberID || "";
+  $("c_memberId").readOnly = true;
+  $("c_name").value = c.Name || "";
+  $("c_email").value = c.Email || "";
+  $("c_phone").value = c.PhoneNumber || "";
+  $("c_address").value = c.Address || "";
+  $("c_age").value = c.Age ?? "";
+  $("c_userId").value = c.UserID ?? "";
+  $("c_userId").disabled = true;
+  $("customerSaveBtn").innerText = "Update Customer";
+}
+
+function resetCustomerForm() {
+  $("customerEditingId").value = "";
+  $("c_memberId").value = "";
+  $("c_memberId").readOnly = false;
+  $("c_name").value = "";
+  $("c_email").value = "";
+  $("c_phone").value = "";
+  $("c_address").value = "";
+  $("c_age").value = "";
+  $("c_userId").value = "";
+  $("c_userId").disabled = false;
+  $("customerSaveBtn").innerText = "Add Customer";
+}
+
+async function deleteCustomer(memberId) {
+  if (!confirm("Delete customer? This may also delete the linked login if safe.")) return;
+
+  const { res, data } = await api(`/customers/${memberId}`, { method: "DELETE" });
+
+  if (!res.ok) {
+    alert(data.error || "Delete failed");
+    return;
+  }
+
+  loadDashboard();
+}
+
+// ---------------- STAFF ----------------
+function renderStaff() {
+  const search = $("staffSearch").value.toLowerCase();
+  let html = "";
+
+  ALL_STAFF.forEach(s => {
+    if (
+      search &&
+      !String(s.StaffID).includes(search) &&
+      !String(s.Name || "").toLowerCase().includes(search) &&
+      !String(s.Username || "").toLowerCase().includes(search)
+    ) return;
+
+    html += `
+      <tr>
+        <td>${s.StaffID}</td>
+        <td>${s.Name || "-"}</td>
+        <td>${s.Role || "-"}</td>
+        <td>${s.ContactNumber || "-"}</td>
+        <td>${s.UserID ?? "-"}</td>
+        <td>${s.Username || "-"}</td>
+        <td>
+          <button onclick="editStaff(${s.StaffID})">Edit</button>
+          <button class="danger" onclick="deleteStaff(${s.StaffID})">Delete</button>
+        </td>
+      </tr>`;
+  });
+
+  $("staffTableAdmin").innerHTML = html || `<tr><td colspan="7">No staff found</td></tr>`;
+}
+
+$("staffSearch").addEventListener("input", renderStaff);
+
+$("staffForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const editingId = $("staffEditingId").value;
+  const payload = {
+    staffId: $("s_staffId").value,
+    name: $("s_name").value,
+    role: $("s_role").value,
+    contactNumber: $("s_contact").value,
+    userId: $("s_userId").value
+  };
+
+  const { res, data } = await api(editingId ? `/staff/${editingId}` : "/staff", {
+    method: editingId ? "PUT" : "POST",
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    alert(data.error || "Error saving staff");
+    return;
+  }
+
+  resetStaffForm();
+  loadDashboard();
+};
+
+function editStaff(staffId) {
+  const s = ALL_STAFF.find(x => String(x.StaffID) === String(staffId));
+  if (!s) return;
+
+  $("staffEditingId").value = s.StaffID;
+  $("s_staffId").value = s.StaffID || "";
+  $("s_staffId").readOnly = true;
+  $("s_name").value = s.Name || "";
+  $("s_role").value = s.Role || "";
+  $("s_contact").value = s.ContactNumber || "";
+  $("s_userId").value = s.UserID ?? "";
+  $("s_userId").disabled = true;
+  $("staffSaveBtn").innerText = "Update Staff";
+}
+
+function resetStaffForm() {
+  $("staffEditingId").value = "";
+  $("s_staffId").value = "";
+  $("s_staffId").readOnly = false;
+  $("s_name").value = "";
+  $("s_role").value = "";
+  $("s_contact").value = "";
+  $("s_userId").value = "";
+  $("s_userId").disabled = false;
+  $("staffSaveBtn").innerText = "Add Staff";
+}
+
+async function deleteStaff(staffId) {
+  if (!confirm("Delete staff? This may also delete the linked login if safe.")) return;
+
+  const { res, data } = await api(`/staff/${staffId}`, { method: "DELETE" });
+
+  if (!res.ok) {
+    alert(data.error || "Delete failed");
+    return;
+  }
+
+  loadDashboard();
+}
+
+// ---------------- LOGS ----------------
+async function loadLogs() {
+  const { res, data } = await api("/logs");
+  if (!res.ok) return;
+
+  $("logBox").value = data.logs || "";
+}
+
+// profile update for customer
+$("profileForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const { res, data } = await api("/me/customer", {
+    method: "PUT",
+    body: JSON.stringify({
+      name: $("profileName").value,
+      email: $("profileEmail").value,
+      phoneNumber: $("profilePhone").value,
+      address: $("profileAddress").value,
+      age: $("profileAge").value
+    })
+  });
+
+  if (!res.ok) {
+    alert(data.error || "Profile update failed");
+    return;
+  }
+
+  loadDashboard();
+};
+
+// logout
+function logout(clear = true) {
+  if (clear) localStorage.removeItem("token");
+  location.reload();
+}
+
+// auto reload if token exists
+if (localStorage.getItem("token")) {
+  loadDashboard();
+}
+</script>
+
+</body>
+</html>

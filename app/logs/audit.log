@@ -1,0 +1,7 @@
+[2026-03-21T20:26:30.007Z] user=aarav1 role=customer action=Login successful status=SUCCESS
+[2026-03-21T20:26:33.357Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-21T20:28:07.187Z] user=aarav1 role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-21T20:29:05.133Z] user=admin role=admin action=Login successful status=SUCCESS
+[2026-03-21T21:27:15.975Z] user=aarav1 role=customer action=Login successful status=SUCCESS
+[2026-03-21T21:30:18.715Z] user=rajeshkumar role=staff action=Login successful status=SUCCESS
+[2026-03-21T21:32:14.702Z] user=admin role=admin action=Login successful status=SUCCESS

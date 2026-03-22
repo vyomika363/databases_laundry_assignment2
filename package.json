@@ -1,0 +1,29 @@
+{
+  "name": "laundry_2",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000d\u0000a\u0000t\u0000a\u0000b\u0000a\u0000s\u0000e\u0000s\u0000_\u0000l\u0000a\u0000u\u0000n\u0000d\u0000r\u0000y\u0000_\u0000a\u0000s\u0000s\u0000i\u0000g\u0000n\u0000m\u0000e\u0000n\u0000t\u00002\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.20.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vyomika363/databases_laundry_assignment2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vyomika363/databases_laundry_assignment2/issues"
+  },
+  "homepage": "https://github.com/vyomika363/databases_laundry_assignment2#readme"
+}
