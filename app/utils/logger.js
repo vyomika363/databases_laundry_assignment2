@@ -8,8 +8,7 @@ if (!fs.existsSync(logDir)) {
 }
 
 const logPath = path.join(logDir, "audit.log");
-
-// ✅ NOW it's safe
+//console path
 console.log("LOG PATH:", logPath);
 
 function logAction(user, action, status) {
@@ -20,7 +19,7 @@ function logAction(user, action, status) {
 
     fs.appendFileSync(logPath, line, "utf8");
 
-    console.log("LOGGED:", line); // debug
+    console.log("LOGGED:", line); 
   } catch (err) {
     console.error("LOG ERROR:", err);
   }

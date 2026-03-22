@@ -28,3 +28,15 @@
 [2026-03-22T11:20:23.245Z] user=admin role=admin action=Login successful status=SUCCESS
 [2026-03-22T11:21:44.785Z] user=admin role=admin action=Deleted customer 111 status=SUCCESS
 [2026-03-22T11:22:34.090Z] user=admin role=unknown action=Login failed - invalid admin code status=FAILED
+[2026-03-22T11:42:54.052Z] user=admin role=admin action=Login successful status=SUCCESS
+[2026-03-22T11:43:09.008Z] user=aarav1 role=customer action=Login successful status=SUCCESS
+[2026-03-22T11:45:07.489Z] user=admin role=admin action=Login successful status=SUCCESS
+[2026-03-22T11:46:41.826Z] user=admin role=admin action=Created customer 122 status=SUCCESS
+[2026-03-22T11:47:04.027Z] user=vyomika role=customer action=Login successful status=SUCCESS
+[2026-03-22T11:47:41.948Z] user=vyomika role=customer action=Updated own customer profile status=SUCCESS
+[2026-03-22T11:48:05.064Z] user=aarav1 role=customer action=Login successful status=SUCCESS
+[2026-03-22T11:48:17.783Z] user=rakeshjoshi role=staff action=Login successful status=SUCCESS
+[2026-03-22T11:48:40.480Z] user=admin role=admin action=Login successful status=SUCCESS
+[2026-03-22T11:48:49.972Z] user=admin role=admin action=Deleted customer 122 status=SUCCESS
+[2026-03-22T11:49:08.149Z] user=vyomika role=unknown action=Login failed - user not found status=FAILED
+[2026-03-22T11:49:17.773Z] user=vyomika role=unknown action=Login failed - user not found status=FAILED

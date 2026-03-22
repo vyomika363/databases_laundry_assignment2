@@ -26,7 +26,7 @@ function verifyToken(req, res, next) {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      // Attempt to decode payload even if invalid to log user info
+      //tries to decode payload even if invalid to log user info
       let userInfo = null;
       try {
         userInfo = jwt.decode(token);

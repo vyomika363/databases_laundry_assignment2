@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../index.html"));
 });
 
-// helpers
+//helpers
 function normalizeRole(role) {
   if (!role) return null;
   const r = String(role).toLowerCase();
@@ -46,7 +46,7 @@ async function queryOne(conn, sql, params = []) {
   return rows[0] || null;
 }
 
-// DB helpers
+//DB helpers
 async function getCustomerByUserId(userId) {
   const [rows] = await db.query(
     "SELECT MemberID, Name, Email, PhoneNumber, Address, Age, RegistrationDate, UserID FROM Customer WHERE UserID = ? LIMIT 1",
@@ -119,7 +119,7 @@ async function userLinkedElsewhere(conn, userId, excludeType, excludeId) {
   return false;
 }
 
-// LOGIN
+//LOGIN
 app.post("/login", async (req, res) => {
   const { username, password, role, adminCode } = req.body;
 
@@ -187,7 +187,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// AUTH CHECK
+//AUTH CHECK
 app.get("/isAuth", verifyToken, (req, res) => {
   const expiry = req.user?.exp ? new Date(req.user.exp * 1000).toISOString() : null;
 
@@ -199,7 +199,7 @@ app.get("/isAuth", verifyToken, (req, res) => {
   });
 });
 
-// DASHBOARD
+//DASHBOARD
 app.get("/dashboard", verifyToken, async (req, res) => {
   try {
     const role = normalizeRole(req.user.role);
@@ -347,7 +347,7 @@ app.get("/dashboard", verifyToken, async (req, res) => {
   }
 });
 
-// CUSTOMER PORTFOLIO UPDATE
+//CUSTOMER PORTFOLIO UPDATE
 app.put(
   "/me/customer",
   verifyToken,
@@ -384,7 +384,7 @@ app.put(
   }
 );
 
-// ORDER LIST
+//ORDER LIST
 app.get("/orders", verifyToken, async (req, res) => {
   try {
     const role = normalizeRole(req.user.role);
@@ -436,7 +436,7 @@ app.get("/orders", verifyToken, async (req, res) => {
   }
 });
 
-// CREATE ORDER
+//CREATE ORDER
 app.post(
   "/orders",
   verifyToken,
@@ -484,7 +484,7 @@ app.post(
   }
 );
 
-// UPDATE ORDER
+//UPDATE ORDER
 app.put(
   "/orders/:id",
   verifyToken,
@@ -534,7 +534,7 @@ app.put(
   }
 );
 
-// DELETE ORDER
+//DELETE ORDER
 app.delete(
   "/orders/:id",
   verifyToken,
@@ -558,7 +558,7 @@ app.delete(
   }
 );
 
-// ADMIN: GET CUSTOMERS
+//ADMIN: GET CUSTOMERS
 app.get("/customers", verifyToken, allowRoles("admin"), async (req, res) => {
   try {
     const [customers] = await db.query(
@@ -586,7 +586,7 @@ app.get("/customers", verifyToken, allowRoles("admin"), async (req, res) => {
   }
 });
 
-// ADMIN: UPDATE CUSTOMER
+//ADMIN: UPDATE CUSTOMER
 app.put("/customers/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   const memberId = req.params.id;
   const { name, email, phoneNumber, address, age } = req.body;
@@ -619,7 +619,7 @@ app.put("/customers/:id", verifyToken, allowRoles("admin"), async (req, res) => 
   }
 });
 
-// ADMIN: ADD CUSTOMER
+//ADMIN: ADD CUSTOMER
 app.post("/customers", verifyToken, allowRoles("admin"), async (req, res) => {
   const { memberId, name, email, phoneNumber, address, age, username, password } = req.body;
 
@@ -628,7 +628,7 @@ app.post("/customers", verifyToken, allowRoles("admin"), async (req, res) => {
       return res.status(400).json({ error: "MemberID, Name, Username, and Password are required" });
     }
 
-    // 1️⃣ Create user
+    //Create user
     const [existingUser] = await db.query("SELECT UserID FROM Users WHERE Username = ?", [username]);
     if (existingUser.length) {
       return res.status(400).json({ error: "Username already exists" });
@@ -640,7 +640,7 @@ app.post("/customers", verifyToken, allowRoles("admin"), async (req, res) => {
     );
     const newUserId = userResult.insertId;
 
-    // 2️⃣ Insert customer
+    //Insert customer
     const [existingMember] = await db.query("SELECT MemberID FROM Customer WHERE MemberID = ?", [memberId]);
     if (existingMember.length) return res.status(400).json({ error: "MemberID exists" });
 
@@ -659,7 +659,7 @@ app.post("/customers", verifyToken, allowRoles("admin"), async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 });
-// ADMIN: SAFE DELETE CUSTOMER
+//ADMIN: SAFE DELETE CUSTOMER
 app.delete("/customers/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   const memberId = req.params.id;
   const conn = await db.getConnection();
@@ -715,7 +715,7 @@ app.delete("/customers/:id", verifyToken, allowRoles("admin"), async (req, res) 
   }
 });
 
-// ADMIN: GET STAFF
+//ADMIN: GET STAFF
 app.get("/staff", verifyToken, allowRoles("admin"), async (req, res) => {
   try {
     const [staffMembers] = await db.query(
@@ -740,7 +740,7 @@ app.get("/staff", verifyToken, allowRoles("admin"), async (req, res) => {
   }
 });
 
-// ADMIN: UPDATE STAFF
+//ADMIN: UPDATE STAFF
 app.put("/staff/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   const staffId = req.params.id;
   const { name, role, contactNumber } = req.body;
@@ -771,7 +771,7 @@ app.put("/staff/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   }
 });
 
-// ADMIN: ADD STAFF
+//ADMIN: ADD STAFF
 app.post("/staff", verifyToken, allowRoles("admin"), async (req, res) => {
   const { staffId, name, role, contactNumber, userId } = req.body;
 
@@ -826,7 +826,7 @@ app.post("/staff", verifyToken, allowRoles("admin"), async (req, res) => {
   }
 });
 
-// ADMIN: SAFE DELETE STAFF
+//ADMIN: SAFE DELETE STAFF
 app.delete("/staff/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   const staffId = req.params.id;
   const conn = await db.getConnection();
@@ -888,7 +888,7 @@ app.delete("/staff/:id", verifyToken, allowRoles("admin"), async (req, res) => {
   }
 });
 
-// OPTIONAL ADMIN LOG VIEW
+//OPTIONAL ADMIN LOG VIEW
 app.get("/logs", verifyToken, allowRoles("admin"), (req, res) => {
   const fs = require("fs");
   const logPath = path.join(__dirname, "logs", "audit.log");

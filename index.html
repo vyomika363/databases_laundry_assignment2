@@ -32,9 +32,7 @@
 html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text); }
 .hidden { display: none !important; }
 
-/* ══════════════════════
-   LOGIN
-══════════════════════ */
+#login
 #loginDiv {
   position: fixed; inset: 0; z-index: 100;
   display: flex; align-items: center; justify-content: center;
@@ -112,9 +110,7 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(-
 .btn-login:hover { opacity: 0.9; }
 .btn-login:active { transform: scale(0.985); }
 
-/* ══════════════════════
-   DASHBOARD SHELL
-══════════════════════ */
+#dashboard
 #dashboardDiv { display: grid; grid-template-columns: 220px 1fr; height: 100vh; overflow: hidden; }
 #dashboardDiv.hidden { display: none !important; }
 
@@ -163,8 +159,7 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(-
 @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
 /* Profile card */
-#profile { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; font-size: 13.5px; line-height: 2; color: var(--muted); }
-#profile strong { color: var(--text); font-weight: 600; margin-right: 6px; }
+#profile { display: none !important; }
 
 /* Section cards */
 .section-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
@@ -215,9 +210,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* Logs */
 #logBox { width: 100%; padding: 14px; background: var(--bg); color: #a0e0cc; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid var(--border-dark); border-radius: 8px; outline: none; resize: vertical; line-height: 1.6; }
 
-/* ══════════════════════
-   MODAL
-══════════════════════ */
+#modal
 .modal-overlay {
   display: none; position: fixed; inset: 0; z-index: 200;
   background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
@@ -257,9 +250,9 @@ input[type="hidden"] { display: none !important; }
 .profile-field .pf-value { font-size: 13.5px; color: var(--text); font-weight: 500; }
 
 /* Staff task badge */
-.task-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-.task-pickup   { background: rgba(59,158,255,0.12);  color: #2a7fd4; }
-.task-delivery { background: rgba(110,231,199,0.12); color: #2aaa88; }
+.task badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.task pickup   { background: rgba(59,158,255,0.12);  color: #2a7fd4; }
+.task delivery { background: rgba(110,231,199,0.12); color: #2aaa88; }
 </style>
 </head>
 <body>
@@ -771,10 +764,6 @@ async function loadDashboard() {
     $("navStaff").style.display = "block";
     $("roleTitle").innerText = "Assigned Tasks";
 
-    const p = data.profile || {};
-    $("profile").innerHTML = `<strong>Name:</strong> ${p.Name || "—"} &nbsp; <strong>Role:</strong> ${p.Role || "—"} &nbsp; <strong>Contact:</strong> ${p.ContactNumber || "—"}`;
-    $("profile").style.display = "block";
-
     $("view-staff-tasks").classList.add('active');
 
     let taskHtml = "";
@@ -803,9 +792,6 @@ async function loadDashboard() {
     $("navAdmin").style.display = "block";
     $("roleTitle").innerText = "Orders";
 
-    $("profile").innerHTML = `<strong>Username:</strong> ${data.username || "—"} &nbsp;&nbsp; <strong>Role:</strong> Administrator`;
-    $("profile").style.display = "block";
-    
     $("view-admin-orders").classList.add('active');
 
     ALL_ORDERS = data.orders || [];
@@ -819,24 +805,16 @@ async function loadDashboard() {
 }
 
 /* ── ORDERS ── */
-/* ── ORDERS ── */
 function renderOrders() {
   const search = $("orderSearch").value.toLowerCase();
-  
-  // Grab the values from BOTH dropdowns
   const statusFilter = $("orderFilter").value;
   const deliveryFilter = $("deliveryFilter").value;
   
   let html = "";
   
   ALL_ORDERS.forEach(o => {
-    // 1. Search text filter
     if (search && !String(o.OrderID).toLowerCase().includes(search) && !String(o.CustomerName || "").toLowerCase().includes(search)) return;
-    
-    // 2. Order Status filter
     if (statusFilter && o.OrderStatus !== statusFilter) return;
-
-    // 3. Delivery Status filter
     if (deliveryFilter && o.DeliveryStatus !== deliveryFilter) return;
 
     const statusClass = {
@@ -859,10 +837,10 @@ function renderOrders() {
   $("orderTable").innerHTML = html || `<tr class="empty-row"><td colspan="6">No orders found</td></tr>`;
 }
 
-// Event listeners to trigger the function when you type or change a dropdown
 $("orderSearch").oninput = renderOrders;
 $("orderFilter").onchange = renderOrders;
-$("deliveryFilter").onchange = renderOrders; // <-- This makes the new dropdown work!
+$("deliveryFilter").onchange = renderOrders;
+
 /* ── CUSTOMERS ── */
 function renderCustomers() {
   const search = $("customerSearch").value.toLowerCase();
@@ -892,7 +870,6 @@ function renderCustomers() {
 
 $("customerSearch").oninput = renderCustomers;
 
-// FIX: Updated logic to include Username and Password correctly
 async function submitCustomerForm() {
   const editingId = $("customerEditingId").value;
   
@@ -937,7 +914,6 @@ function editCustomer(memberId) {
   $("c_address").value = c.Address || "";
   $("c_age").value = c.Age || "";
   
-  // Disable username/password for edits as per standard backend flow
   $("c_username").value = "Cannot edit";
   $("c_password").value = "******";
   $("c_username").disabled = true;
@@ -958,7 +934,6 @@ function resetCustomerForm() {
   $("c_address").value = "";
   $("c_age").value = "";
   
-  // Reset and enable credentials
   $("c_username").value = "";
   $("c_password").value = "";
   $("c_username").disabled = false;
@@ -1068,11 +1043,9 @@ $("profileForm").onsubmit = async (e) => {
     return;
   }
 
-  // Update profile card
   $("dispName").innerText = payload.name;
   $("dispEmail").innerText = payload.email;
 
-  // Show success message inside form
   let msg = $("profileForm").querySelector(".successMsg");
   if (!msg) {
     msg = document.createElement("div");
